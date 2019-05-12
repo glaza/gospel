@@ -13,7 +13,7 @@ TOTAL_HEIGHT   = SEGMENT_HEIGHT + 1.5*SEGMENT_WIDTH;
 HOLE_WIDTH     = TOTAL_HEIGHT - SOCKET_WIDTH;
 
 //one_segment();
-dupx()
+dx()
 seven_segment();
 
 module seven_segment()
@@ -114,7 +114,7 @@ module segment()
         xy(-50)
         cube([100,100,DEPTH]);
 
-        dupy()
+        dy()
         {
             // Body
             z(DEPTH/2)
@@ -138,7 +138,7 @@ module segment()
 module socket()
 {
     
-    dupy()
+    dy()
     difference()
     {
         // Body
@@ -149,7 +149,7 @@ module socket()
                 TOTAL_HEIGHT/2, 
                 DEPTH]);
 
-            dupx()
+            dx()
             y(TOTAL_HEIGHT/2)
             rz(-45)
             z(-TOLERANCE/2)
