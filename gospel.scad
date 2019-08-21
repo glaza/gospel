@@ -185,6 +185,18 @@ module s(factor, variation=0)
 }
 
 /**
+ * Shortcuts
+ */
+module diff() //does not work
+{
+    difference()
+    {
+        children();
+    }
+}
+
+
+/**
  * Colours
  */
 module red()
