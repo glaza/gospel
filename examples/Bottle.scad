@@ -2,18 +2,25 @@ include <../gospel.scad>
 
 $fn = 100;
 
+// I recommend you slice this piece with 2 outer perimeters
+// The horizontal_expantion setting can be increased until
+// there are 2 perimeters all around. 
+
 difference()
 {
     draw_cover();
-    draw_letters( "GEORGE" );
-    //slit();
-
-    y(30)
-    z(-50)
+    draw_letters( "Alain", [20,18,0,20,20,27,27.5] );
+    
+    y(10)
+    z(-55)
     rx(100)
+    ry(180)
     inteleradLogo(30, 70);
 }
+// only needed to hold up a lowercase 'e'
+//bridge();
 
+/** Draws the actual sleeve shape */
 module draw_cover()
 {
     rotate_extrude()
@@ -25,7 +32,7 @@ module draw_cover()
         sy( 0.5 )
         polygon(
             points=
-                [   [22, 38.8+tolerance],
+                [   [21, 38.8+tolerance],
                     [30, 38.8+tolerance],
                     [32.35,	38.8+tolerance],
                     [35, 40.1+tolerance],
@@ -48,7 +55,7 @@ module draw_cover()
                     [35, 40.1+tolerance+thickness],
                     [32.35, 38.8+tolerance+thickness],
                     [30, 38.8+tolerance+thickness],
-                    [22, 38.8+tolerance+thickness]
+                    [21, 38.8+tolerance+thickness]
             ],
             paths=
                 [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21/*, 22, 23*/]]
@@ -58,31 +65,45 @@ module draw_cover()
 
 
 
-
-module draw_letters( letters )
+/**
+ * @param letters A string
+ * @param angles  The list of angles per letter
+ */
+module draw_letters( letters, angles )
 {
     count = len(letters);
     
     for ( i = [0:count] )
     {
-        rz( 35*(i-count/2.5) )
+        rz( angles[i]*(i-count/2.5) )
         y(-20)
         z(-70)
         rx(80)
-        linear_extrude(20)
+        linear_extrude(20, convexity = 5)
         s(2)
+        y(-5)
         text(letters[i],
              font="Stencilia\\-Bold",
-             valign="center",
+             //valign="center",
              halign="center"
         );
     }
 }
 
-module slit()
+/**
+ * This is a simple line that is sometimes neede to hold up the center of an 'e'
+ */
+module bridge()
 {
-    z(-10)
-    cube([1, 50, 10]);
+    rz(41)
+    x(-33)
+    z(-74.7)
+    cube([0.75, 12.5, 0.5], center = true);
+    
+    rz(49.5)
+    x(-32)
+    z(-68.05)
+    cube([0.5, 4.25, 0.5], center = true);
 }
 
 /**

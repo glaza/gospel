@@ -1,3 +1,4 @@
 *.stl
+!*.example.stl
 *.gcode
 .DS_Store
