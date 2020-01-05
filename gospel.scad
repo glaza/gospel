@@ -219,3 +219,37 @@ module white()
     color("White")
     children();
 }
+
+/**
+ * shapes
+ * @param size A vector passed to the cube
+ * @param r The radius of the sphere
+ * @param half Whether all corners or only top ones
+ */
+module rounded(size, r, half)
+{
+    radius = half
+        ? min(r, 0.999*min(size[0]/2, size[1]/2, size[2]))
+        : min(r, 0.999*min(size)/2);
+    
+    diameter = 2*radius;
+    width = size[0] - diameter;
+    height = size[1] - diameter;
+    depth = half 
+        ? (size[2] - radius) 
+        : size[2] - diameter;
+    shift = half ? radius : 0; 
+    
+    intersection()
+    {
+        z(-shift)
+        xyz(radius)
+        minkowski()
+        {
+            sphere(radius);
+            cube([width,height,depth]);
+        }
+        
+        cube(size);
+    }
+}
