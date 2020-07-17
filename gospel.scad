@@ -171,7 +171,7 @@ module syz(factor, variation=0)
     sy(factor, variation)
     children();
 }
-module sxz(d, variation=0) 
+module sxz(factor, variation=0) 
 {   
     sx(factor, variation)
     sz(factor, variation)
