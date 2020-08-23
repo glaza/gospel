@@ -1,7 +1,7 @@
-include <../gospel.scad>
+include <../../gospel.scad>
 
 ry(-90)
-cylinder(h=30, d1=45, d2=42);
+cylinder(h=30, d1=44, d2=41);
 
 s(1.1)
 head();

@@ -1,4 +1,4 @@
-include <../gospel.scad>
+include <../../gospel.scad>
 
 DIAMETER=130;
 THICKNESS=40;
