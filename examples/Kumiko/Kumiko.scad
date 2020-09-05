@@ -1,5 +1,6 @@
 HEIGHT=.1;
-THICK=.03;
+THICKNESS=.03;
+
 
 OPEN=true;
 CLOSED=false;
@@ -166,20 +167,23 @@ function outline(shape, open = false) =
     let (center = center(shape),
          p0 = shape[0],
          p1 = shape[1],
-         p2 = shape[2],
-         innerP0 = center([p0, center([p0, center])]),
-         innerP1 = center([p1, center([p1, center])]),
-         innerP2 = center([p2, center([p2, center])]))
+         p2 = shape[2])
     len(shape) == 3 // Triangle
-    ? open ? [p0, p1, p2, innerP2, innerP1, innerP0]
-             : [p0, p1, p2, p0, innerP0, innerP2, innerP1, innerP0]
+    ? let(p00 = innerPoint([p2, p0, p1]),
+          p11 = innerPoint([p0, p1, p2]),
+          p22 = innerPoint([p1, p2, p0]))
+      open ? [p0, p1, p2, p22, p11, p00]
+           : [p0, p1, p2, p0, p00, p22, p11, p00]
 
     : len(shape) == 4 // Quadrilateral
     ? let (p3 = shape[3],
-           innerP3 = center([p3, center([p3, center])]))
-        open ? [p0, p1, p2, p3, innerP3, innerP2, innerP1, innerP0]
-             : [p0, p1, p2, p3, p0, innerP0, innerP3, innerP2, innerP1, innerP0]
-     : // Other polygon
+           p00 = innerPoint([p3, p0, p1]),
+           p11 = innerPoint([p0, p1, p2]),
+           p22 = innerPoint([p1, p2, p3]),
+           p33 = innerPoint([p2, p3, p0]))
+        open ? [p0, p1, p2, p3, p33, p22, p11, p00]
+             : [p0, p1, p2, p3, p0, p00, p33, p22, p11, p00]
+    : // Other polygon
         [];
 
 /**
@@ -273,7 +277,8 @@ function trapizate(shape) =
         [[p0,  p1,  p1c, p0c],
          [p1,  p2,  p2c, p1c],
          [p2,  p3,  p3c, p2c],
-         [p3,  p0,  p0c, p3c]]
+         [p3,  p0,  p0c, p3c],
+         [p0c, p1c, p2c, p3c]]
          
      : [];
     
@@ -403,3 +408,40 @@ function center(shape) =
        (shape[0].y + shape[1].y + shape[2].y + shape[3].y)/4]
     
     : [5, 5];
+
+/**
+ * @param triangle A vector of 3 points
+ * @param thichness The stick thickness
+ * @return the innter point that is half of the
+ *         thichness inside of the corner.
+ * 0     2
+ *  \ w /
+ *  u\|/v
+ *    1
+ */
+function innerPoint(triangle) =
+    let(u = normalize(vectorize([triangle[1], triangle[0]])),
+        v = normalize(vectorize([triangle[1], triangle[2]])),
+        w = normalize([u.x+v.x, u.y+v.y]),
+        angle = acos(dot(u, v)),
+        normW = THICKNESS / (2*sin(angle/2)))
+    [triangle[1].x + w.x*normW, triangle[1].y + w.y*normW];
+// Testing angle, expect 45
+echo("angle", acos(dot([1, 0], [0.707107, 0.707107])));
+
+// Testing innerPoint, expect [0.1, 0.1]
+echo("innerPoint", innerPoint([[0, 1], [0, 0], [1, 0]], 0.2));
+// Testing innerPoint, expect [11, 11]
+echo("innerPoint", innerPoint([[10, 15], [10, 10], [15, 10]], 2)); 
+
+
+function dot(u, v) = u.x*v.x + u.y*v.y;
+function normalize(vec) = [vec.x/norm(vec), vec.y/norm(vec)];
+//// Testing normalize, expect [0.707, 0.707]
+//echo("normalize", normalize([[0,0], [1,1]]));
+
+function normOf(line) = norm(vectorize(line));
+function vectorize(line) = [dx(line), dy(line)];
+function dx(line) = line[1].x - line[0].x;
+function dy(line) = line[1].y - line[0].y;
+function sq(num) = num * num;
