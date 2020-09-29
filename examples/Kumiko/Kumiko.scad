@@ -1,73 +1,86 @@
-HEIGHT=.1;
-THICKNESS=.03;
-
+//
+// This is a Kumiko pattern generator
+// It generates 2D polygons very fast
+// Don't forget to linear_extrude it!
+// @author George Laza (geodynamics)
+//
 // Sample images can be found at these sites:
 // ------------------------------------------
 // http://yoshiharawoodworks.com/en/about/kumiko/
 // https://simplynativejapan.com.au/materials/kumiko/
 // https://www.tanihata.co.jp/english/takumi/tree
 
+// Samples
+Kumiko(MITSUKUDE, [[0,0],[1,0],[1,1],[0,1]], [2,2]);
+Kumiko(ASANOHA, [[1,0],[2,0],[2,1],[1,1]], [2,2]);
+Kumiko(BISHAMON, [[2,0],[3,0],[3,1],[2,1]], [2,2]);
+Kumiko(TSUTSUIDUTSU, [[0,1],[1,1],[1,2],[0,2]], [2,2]);
+Kumiko(KAKUASA, [[1,1],[2,1],[2,2],[1,2]], [2,2]);
+
 /**
+ * Renders a 2D Kumiko pattern
+ * @param pattern One of the pattern constants
+ * @param rectangle A vector of 4 points denoting the
+ *                  coordinates of the bouding box
+ *                  in a counter clockwise direction
+ *                  Example: [[0,0],[1,0],[1,1],[0,1]]
+ * @param grid A vector holding two integers:
+ *             the number of columns and rows
+ *             in the grid. Example: [cols,rows]
+ * @param thickness The thickness of all the edges
+ *                  In absolute size compared to
+ *                  rectangle provided above. Ex:
+ *                  rect = [[0,0],[1,0],[1,1],[0,1]]
+ *                  grid = [2,2], thickness = 0.1
+ *                  each edge will be 1/5 of the 
+ *                  tile, which is huge, by the way. 
+ *                  If left as 0, an appropriate 
+ *                  thickness will be selected: 3%
  */
-KAKUASA = 0;
+KAKUASA      = 1;
+ASANOHA      = 2;
+MITSUKUDE    = 3;
+BISHAMON     = 4;
+TSUTSUIDUTSU = 5;
+
 module Kumiko(pattern = KAKUASA,
               rectangle = [[0,0],[1,0],[1,1],[0,1]],
-              grid)
+              grid = [1, 1],
+              thickness = 0)
 {
+    actualThickness = thickness == 0
+        ? let (sampleTile = _computeTileRect(rectangle, grid, 0, 0))
+          0.03*norm(_vectorize([sampleTile[0], sampleTile[1]]))
+        : thickness;
+    
+    
+    scaledRect = _scaleRect(rectangle, -actualThickness/2);
+    
+    Frame(rectangle, FRAME_LEFT, actualThickness);
+    Frame(rectangle, FRAME_BOTTOM, actualThickness);
+    Frame(rectangle, FRAME_RIGHT, actualThickness);
+    Frame(rectangle, FRAME_TOP, actualThickness);
+    
     for ( x = [0:1:grid.x-1] )
     {
         for ( y = [0:1:grid.y-1] )
         {
-            tile = _computeTileRect(rectangle, grid, x, y);
+            tile = _computeTileRect(scaledRect, grid, x, y);
             
             if (pattern == KAKUASA)
-                KakuAsanoha(tile);
+                KakuAsanoha(tile, actualThickness);
             if (pattern == ASANOHA)
-                Asanoha(tile);
-            if (pattern == ASANOHA)
-                Mitsukude(tile);
+                Asanoha(tile, actualThickness);
+            if (pattern == MITSUKUDE)
+                Mitsukude(tile, actualThickness);
+            if (pattern == BISHAMON)
+                BishamonKikkou(tile, actualThickness);
+            if (pattern == TSUTSUIDUTSU)
+                Tsutsuidutsu(tile, actualThickness);
         }
     }
 }
-Kumiko(KAKUASA,
-       [[1,1],[3,1],[3,3],[1,3]],
-       [2, 2]);
 
-for ( x = [8:1:10] )
-{
-    for ( y = [4:1:6] )
-    {
-        KakuAsanoha([[x,y],[x+1,y],[x+1,y+1],[x,y+1]]);
-    }
-}
-for ( x = [4:1:6] )
-{
-    for ( y = [0:1:2] )
-    {
-        Asanoha([[x,y],[x+1,y],[x+1,y+1],[x,y+1]]);
-    }
-}
-for ( x = [8:1:10] )
-{
-    for ( y = [0:1:2] )
-    {
-        Mitsukude([[x,y],[x+1,y],[x+1,y+1],[x,y+1]]);
-    }
-}
-for ( x = [0:1:2] )
-{
-    for ( y = [4:1:6] )
-    {
-        BishamonKikkou([[x,y],[x+1,y],[x+1,y+1],[x,y+1]]);
-    }
-}
-for ( x = [4:1:6] )
-{
-    for ( y = [4:1:6] )
-    {
-        Tsutsuidutsu([[x,y],[x+1,y],[x+1,y+1],[x,y+1]]);
-    }
-}
 
 //  _  __               _ _         
 // | |/ /   _ _ __ ___ (_) | _____  
@@ -81,7 +94,21 @@ for ( x = [4:1:6] )
 //   |_| |_|_|\___||___/
 //
 
-module Mitsukude(rectangle)
+/**
+ *      Mitsukude
+ *
+ *   3            .2
+ *   |         .-' |
+ *   |      .-'    |
+ *   |   .-'       |
+ *  30.-'          |
+ *   |`-.          |
+ *   |   `-.       |
+ *   |      `-.    |
+ *   |         `-. |
+ *   0            `1
+ */
+module Mitsukude(rectangle, thickness)
 {
     // Decompose tile into quarters
     for (quarterRect = _mirrorEveryNth(_mirrorEveryNth(_subdivide(rectangle), 1, 4), 2, 4))
@@ -90,12 +117,11 @@ module Mitsukude(rectangle)
         p1 = quarterRect[1];
         p2 = quarterRect[2];
         p3 = quarterRect[3];
-        p12 = _interpolate(p1, p2);
         p30 = _interpolate(p3, p0);
         
-        polygon(_outline([p1, p30, p0], OPEN));
-        polygon(_outline([p30, p1, p2]));
-        polygon(_outline([p3, p30, p2], OPEN));
+        polygon(_outline([p1, p30, p0], thickness, OPEN));
+        polygon(_outline([p30, p1, p2], thickness));
+        polygon(_outline([p3, p30, p2], thickness, OPEN));
     }
 }
 
@@ -113,7 +139,7 @@ module Mitsukude(rectangle)
  *   |   \     `-.\|
  *   0    01------`1
  */
-module Asanoha(rectangle)
+module Asanoha(rectangle, thickness)
 {
     // Decompose tile into quarters
     for (quarterRect = _mirrorEveryNth(_mirrorEveryNth(_subdivide(rectangle), 1, 4), 2, 4))
@@ -130,18 +156,32 @@ module Asanoha(rectangle)
         // Cut each quarter in half
         for (triangle = _subdivide([p30, p1, p2]))
         {
-            polygon(_outline(triangle));
+            polygon(_outline(triangle, thickness));
         }
         // Top
-        polygon(_outline([p23, p30, p2]));
-        polygon(_outline([p3, p30, p23], OPEN));
+        polygon(_outline([p23, p30, p2], thickness));
+        polygon(_outline([p3, p30, p23], thickness, OPEN));
         // Bottom
-        polygon(_outline([p01, p30, p0], OPEN));
-        polygon(_outline([p1, p30, p01]));
+        polygon(_outline([p01, p30, p0], thickness, OPEN));
+        polygon(_outline([p1, p30, p01], thickness));
     }
 }
 
-module KakuAsanoha(rectangle)
+/**
+ *   Kaku-Asanoha
+ *
+ *   3-rectangle-2
+ *   |     |   / |
+ *   |     |  /  |
+ *   |     | /  outer triangle
+ *   |_____|/____|
+ *   |     | quar|
+ *   |     | rect|
+ *   |     |     |
+ *   |     |     |
+ *   0-----------1
+ */
+module KakuAsanoha(rectangle, thickness)
 {
     // Decompose tile into quarters
     for (quarterRect = _rotateEveryNth(_subdivide(rectangle), 1, 2))
@@ -152,7 +192,7 @@ module KakuAsanoha(rectangle)
             // Decompose each tringle in 3
             for (innerTriangle = _triangulate(outerTriangle))
             {
-                polygon(_outline(innerTriangle));
+                polygon(_outline(innerTriangle, thickness));
             }
         }
     }
@@ -172,7 +212,7 @@ module KakuAsanoha(rectangle)
  *   |-.     .-B-. |
  *   0  `-01'     `1
  */
-module BishamonKikkou(rectangle)
+module BishamonKikkou(rectangle, thickness)
 {    
     // Decompose tile into quarters
     for (quarterRect = _mirrorEveryNth(_mirrorEveryNth(_subdivide(rectangle), 1, 4), 2, 4))
@@ -193,32 +233,85 @@ module BishamonKikkou(rectangle)
         down = _vectorize([p3, p0]);
         
         // Top
-        polygon(_outline([p3, p30, pC, p23], OPEN));
-        polygon(_outline([p23, pC, p2], OPEN));
+        polygon(_outline([p3, p30, pC, p23], thickness, OPEN));
+        polygon(_outline([p23, pC, p2], thickness, OPEN));
         
         // Center
         for (trapezoid = _trapizate([p30, p1, p2]))
         {
-            polygon(_outline(trapezoid));
+            polygon(_outline(trapezoid, thickness));
         }
         
         // Bottom
-        polygon(_outline([p01, pA, p0], OPEN));
-        polygon(_outline([pA, p01, pB, p30]));
-        polygon(_outline([p1, pB, p01], OPEN));
+        polygon(_outline([p01, pA, p0], thickness, OPEN));
+        polygon(_outline([pA, p01, pB, p30], thickness));
+        polygon(_outline([p1, pB, p01], thickness, OPEN));
     }
 }
 
-module Tsutsuidutsu(rectangle)
+/**
+ *   Tsutsuidutsu
+ *
+ *   +-----------+
+ *   |\_________/|
+ *   | |       | |
+ *   | |       | |
+ *   | |       | |
+ *   | |       | |
+ *   | |       | |
+ *   | |_______| |
+ *   |/         \|
+ *   +-----------+
+ */
+module Tsutsuidutsu(rectangle, thickness)
 {
     // Decompose tile into quarters
     for (quarterRect = _mirrorEveryNth(_mirrorEveryNth(_subdivide(rectangle), 1, 4), 2, 4))
     {
         for (trapezoid = _trapizate(quarterRect))
         {
-            polygon(_outline(trapezoid));
+            polygon(_outline(trapezoid, thickness));
         }
     }
+}
+
+/**
+ * Draws a rectangular box frame on the inside
+ * 
+ * 3----2  +----+
+ * |    |  |\__/|
+ * |    |  ||__||
+ * |    |  |/  \|
+ * 0----1  +----+
+ * 
+ * @param rectangle A vector of 4 points
+ * @param side One of FRAME_* constants
+ * @param thickness The thickness of the edges
+ */
+FRAME_LEFT   = 0;
+FRAME_BOTTOM = 1;
+FRAME_RIGHT  = 2;
+FRAME_TOP    = 3;
+module Frame(rectangle, side, thickness)
+{
+    scaledRect = _scaleRect(rectangle, -thickness/2);
+    p0 = rectangle[0];
+    p1 = rectangle[1];
+    p2 = rectangle[2];
+    p3 = rectangle[3];
+    p00 = scaledRect[0];
+    p11 = scaledRect[1];
+    p22 = scaledRect[2];
+    p33 = scaledRect[3];
+    
+    if (side == FRAME_LEFT)
+        polygon([p0, p3, p33, p00]);
+    if (side == FRAME_BOTTOM)
+        polygon([p0, p00, p11, p1]);
+    if (side == FRAME_RIGHT)
+        polygon([p1, p11, p22, p2]);
+    if (side == FRAME_TOP)
+        polygon([p2, p22, p33, p3]);
 }
 
 //  _   _ _   _ _ _ _         
@@ -234,7 +327,25 @@ module Tsutsuidutsu(rectangle)
 // |_|   \__,_|_| |_|\___|\__|_|\___/|_| |_|___/
 //
 
-
+/**
+ * Calculates the grid tile coordinates
+ *
+ * grid=[2,3] tile coords   i=1,j=1
+ * 3---+---2   +---+---+   +---+---+
+ * |   |   |   |0,0|1,0|   |   |   |
+ * +---+---+   +---+---+   +---3---2
+ * |   |   |   |0,1|1,1|   |   |   |
+ * +---+---+   +---+---+   +---0---1
+ * |   |   |   |0,2|1,2|   |   |   |
+ * 0---+---1   +---+---+   +---+---+
+ * 
+ * @param rectangle The entire grid coordinates
+ * @param grid A 1x2 vector holding the number of
+ *             columns and rows in the grid [cols,rows]
+ * @param i The 0-based colum index of the tile
+ * @param j The 0-based row index of the tile
+ * @return A rectangle representing the selected tile
+ */
 function _computeTileRect(rectangle, grid, i, j) =
     let(r0 = rectangle[0],
         r1 = rectangle[1],
@@ -271,15 +382,15 @@ function _computeTileRect(rectangle, grid, i, j) =
 CLOSED=0;
 OPEN=1;
 PARTIAL=2;
-function _outline(shape, geometry = CLOSED) = 
+function _outline(shape, thickness, geometry = CLOSED) = 
     let (center = _center(shape),
          p0 = shape[0],
          p1 = shape[1],
          p2 = shape[2])
     len(shape) == 3 // Triangle
-    ? let(p00 = _innerPoint([p2, p0, p1], geometry),
-          p11 = _innerPoint([p0, p1, p2]),
-          p22 = _innerPoint([p0, p2, p1], geometry))
+    ? let(p00 = _innerPoint([p2, p0, p1], thickness, geometry),
+          p11 = _innerPoint([p0, p1, p2], thickness),
+          p22 = _innerPoint([p0, p2, p1], thickness, geometry))
         geometry == CLOSED
         ? [p0, p1, p2, p0, p00, p22, p11, p00]
 
@@ -288,14 +399,14 @@ function _outline(shape, geometry = CLOSED) =
 
     : len(shape) == 4 // Quadrilateral
     ? let (p3 = shape[3],
-           p00 = _innerPoint([p3, p0, p1], geometry),
-           p11 = _innerPoint([p0, p1, p2]),
-           p22 = _innerPoint([p1, p2, p3]),
-           p33 = _innerPoint([p2, p3, p0]))
+           p00 = _innerPoint([p3, p0, p1], thickness, geometry),
+           p11 = _innerPoint([p0, p1, p2], thickness),
+           p22 = _innerPoint([p1, p2, p3], thickness),
+           p33 = _innerPoint([p2, p3, p0], thickness))
         geometry == CLOSED
         ? [p0, p1, p2, p3, p0, p00, p33, p22, p11, p00]
         
-        : let(p33 = _innerPoint([p0, p3, p2], OPEN))
+        : let(p33 = _innerPoint([p0, p3, p2], thickness, OPEN))
         geometry == OPEN
         ? [p0, p1, p2, p3, p33, p22, p11, p00]
 
@@ -537,31 +648,56 @@ function _center(shape) =
  *  u\|/v
  *    1
  */
-function _innerPoint(triangle, geometry = CLOSED) =
+function _innerPoint(triangle, thickness, geometry = CLOSED) =
     let(u = _normalize(_vectorize([triangle[1], triangle[0]])),
         v = _normalize(_vectorize([triangle[1], triangle[2]])),
         w = _normalize([u.x+v.x, u.y+v.y]),
         angle = acos(_dot(u, v)),
-        normW = THICKNESS / (2*sin(angle/2)),
-        normU = THICKNESS / (2*sin(angle)))
+        normW = thickness / (2*sin(angle/2)),
+        normU = thickness / (2*sin(angle)))
     geometry == CLOSED
     ? _addVec(triangle[1], _scaleVec(w, normW))
     
     : // geometry == OPEN
     _addVec(triangle[1], _scaleVec(u, normU));
-    
-module dot(point)
-{
-    polygon([[point.x-0.05,point.y-0.05],
-             [point.x+0.05,point.y-0.05],
-             [point.x+0.05,point.y+0.05],
-             [point.x-0.05,point.y+0.05]]);
-}
+
+/**
+ * Scales the rectangle around its center
+ * 
+ *                   3--------2
+ * 3----2            |        |
+ * |    | + amount = |        |
+ * |    |    | |     |        |
+ * 0----1            |        |
+ *                   0--------1
+ *
+ * 3----2            
+ * |    | - amount = 3--2
+ * |    |    | |     |  |
+ * 0----1            0--1
+ *
+ * @param rectangle A vector of 4 points
+ * @param amount The absolute about by which to
+ *               expand or shrink
+ * @return A rectangle expanded or shrunk 
+ */
+function _scaleRect(rectangle, amount) =
+    let (p0 = rectangle[0],
+         p1 = rectangle[1],
+         p2 = rectangle[2],
+         p3 = rectangle[3],
+         u = _scaleVec(_normalize(_vectorize([p0, p1])), amount),
+         v = _scaleVec(_normalize(_vectorize([p0, p3])), amount))
+     [_subVec(p0, _addVec(u, v)),
+      _addVec(p1, _addVec(u, [-v.x, -v.y])),
+      _addVec(p2, _addVec(u, v)),
+      _addVec(p3, _addVec([-u.x,-u.y], v))];
 
 function _dot(u, v) = u.x*v.x + u.y*v.y;
 function _normalize(vec) = [vec.x/norm(vec), vec.y/norm(vec)];
 function _scaleVec(vector, factor) = [vector.x*factor, vector.y*factor];
 function _addVec(point, vector) = [point.x+vector.x, point.y+vector.y];
+function _subVec(point, vector) = [point.x-vector.x, point.y-vector.y];
 function _vectorize(line) = [_dx(line), _dy(line)];
 function _dx(line) = line[1].x - line[0].x;
 function _dy(line) = line[1].y - line[0].y;
