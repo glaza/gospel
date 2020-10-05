@@ -6,16 +6,69 @@
 //
 // Sample images can be found at these sites:
 // ------------------------------------------
-// http://yoshiharawoodworks.com/en/about/kumiko/
-// https://simplynativejapan.com.au/materials/kumiko/
+// http://www.kskdesign.com.au/shoji/kumiko.html
+// http://yoshiharawoodworks.com/en/about/kumiko
+// https://simplynativejapan.com.au/materials/kumiko
 // https://www.tanihata.co.jp/english/takumi/tree
+// http://www.sashikan.com/en/design_list.html
 
-// Samples
-Kumiko(MITSUKUDE, [[0,0],[1,0],[1,1],[0,1]], [2,2]);
-Kumiko(ASANOHA, [[1,0],[2,0],[2,1],[1,1]], [2,2]);
-Kumiko(BISHAMON, [[2,0],[3,0],[3,1],[2,1]], [2,2]);
-Kumiko(TSUTSUIDUTSU, [[0,1],[1,1],[1,2],[0,2]], [2,2]);
-Kumiko(KAKUASA, [[1,1],[2,1],[2,2],[1,2]], [2,2]);
+// Example:
+// --------
+// Kumiko(KAKUASANOHA, [[0,0],[1,0],[1,1],[0,1]], [2,2]);
+
+rows=3;
+cols=3;
+for (x = [0:1:(rows-1)])
+{
+    for (y = [0:1:(cols-1)])
+    {
+        tile = _computeTileRect([[0,0],[10,0],[10,10],[0,10]], [3, 3], x, y);
+        
+        Kumiko(x + y*cols,
+               _scaleRect(tile, -.2),
+               [2, 2]);
+    }
+}
+
+// Pattern Constants:
+// ------------------
+NONE = 0; // Can be used to only draw the frame
+
+// Square
+KAKUASANOHA  = 1;
+GOMAGARA     = 2;
+TSUTSUIDUTSU = 3;
+MASUTSUNAGI  = 4;
+
+// Hexagonal
+MITSUKUDE    = 6;
+ASANOHA      = 7;
+BISHAMON     = 5;
+
+/*
+Sakura
+SakuraKikko
+KasaneRindo
+YaeUrahanaKikko
+KawariUrahanaKikko
+Kagome
+YaeKagome
+HishisannojiKuzushi
+MasuTsunagi
+ManjiTsunagi
+
+Sayagata
+Izutsu
+WariBishi
+SanjuBishi
+TsumiIsiKikko
+
+Mikado
+Shokko
+NijyuShokko
+AsanohaKikko
+BentenKikko
+*/
 
 /**
  * Renders a 2D Kumiko pattern
@@ -27,6 +80,8 @@ Kumiko(KAKUASA, [[1,1],[2,1],[2,2],[1,2]], [2,2]);
  * @param grid A vector holding two integers:
  *             the number of columns and rows
  *             in the grid. Example: [cols,rows]
+ * @param frame A boolean indicating whether to box
+ *              the model in a frame or not.
  * @param thickness The thickness of all the edges
  *                  In absolute size compared to
  *                  rectangle provided above. Ex:
@@ -37,15 +92,10 @@ Kumiko(KAKUASA, [[1,1],[2,1],[2,2],[1,2]], [2,2]);
  *                  If left as 0, an appropriate 
  *                  thickness will be selected: 3%
  */
-KAKUASA      = 1;
-ASANOHA      = 2;
-MITSUKUDE    = 3;
-BISHAMON     = 4;
-TSUTSUIDUTSU = 5;
-
-module Kumiko(pattern = KAKUASA,
+module Kumiko(pattern = KAKUASANOHA,
               rectangle = [[0,0],[1,0],[1,1],[0,1]],
               grid = [1, 1],
+              frame = true,
               thickness = 0)
 {
     actualThickness = thickness == 0
@@ -53,21 +103,23 @@ module Kumiko(pattern = KAKUASA,
           0.03*norm(_vectorize([sampleTile[0], sampleTile[1]]))
         : thickness;
     
-    
-    scaledRect = _scaleRect(rectangle, -actualThickness/2);
-    
-    Frame(rectangle, FRAME_LEFT, actualThickness);
-    Frame(rectangle, FRAME_BOTTOM, actualThickness);
-    Frame(rectangle, FRAME_RIGHT, actualThickness);
-    Frame(rectangle, FRAME_TOP, actualThickness);
-    
-    for ( x = [0:1:grid.x-1] )
+    if (frame)
     {
-        for ( y = [0:1:grid.y-1] )
+        Frame(rectangle, FRAME_LEFT, actualThickness);
+        Frame(rectangle, FRAME_BOTTOM, actualThickness);
+        Frame(rectangle, FRAME_RIGHT, actualThickness);
+        Frame(rectangle, FRAME_TOP, actualThickness);
+    }
+    
+    scaledRect = frame ? _scaleRect(rectangle, -actualThickness/2) : rectangle;
+    
+    for (x = [0:1:grid.x-1])
+    {
+        for (y = [0:1:grid.y-1])
         {
             tile = _computeTileRect(scaledRect, grid, x, y);
             
-            if (pattern == KAKUASA)
+            if (pattern == KAKUASANOHA)
                 KakuAsanoha(tile, actualThickness);
             if (pattern == ASANOHA)
                 Asanoha(tile, actualThickness);
@@ -77,6 +129,10 @@ module Kumiko(pattern = KAKUASA,
                 BishamonKikkou(tile, actualThickness);
             if (pattern == TSUTSUIDUTSU)
                 Tsutsuidutsu(tile, actualThickness);
+            if (pattern == GOMAGARA)
+                GomaGara(tile, actualThickness);
+            if (pattern == MASUTSUNAGI)
+                MasuTsunagi(tile, actualThickness);
         }
     }
 }
@@ -276,6 +332,92 @@ module Tsutsuidutsu(rectangle, thickness)
 }
 
 /**
+ *           Goma Gara
+ *
+ *   3                 ,-2
+ *                  ,-H ,I
+ *               ,-' ,G' |
+ *            ,-' ,-' |  |
+ *         ,-' ,-'    |  |
+ *       ,B---C-------E--F
+ *    ,-' ,-'         |  |
+ *   0---A------------D--1
+ *
+ */
+module GomaGara(rectangle, thickness)
+{
+    // Decompose tile into quarters
+    for (quarterRect = _rotateEveryNth(_rotateEveryNth(_rotateEveryNth(_subdivide(rectangle), 1, 1), 2, 1), 3, 1))
+    {
+        for (triangle = _mirrorEveryNth(_triangulate(quarterRect)), 1, 1) {
+            p0 = triangle[0];
+            p1 = triangle[1];
+            p2 = triangle[2];
+            pA = _interpolate(p0, p1, 0.25);
+            pB = _interpolate(p0, p2, 0.2);
+            pI = _interpolate(p1, p2, 0.75);
+            pH = _interpolate(p0, p2, 0.8);
+            pF = _interpolate(p1, p2, 0.2);
+            pC = _interpolate(pA, pI, 0.2666);
+            pD = _interpolate(p0, p1, 0.8);
+            pG = _interpolate(pA, pI, 0.7333);
+            pE = _interpolate(pB, pF, 0.75);//0.7925);
+            
+            polygon(_outline([p0, pA, pC, pB], thickness));
+            polygon(_outline([pA, pD, pE, pC], thickness));
+            polygon(_outline([pD, p1, pF, pE], thickness));
+            polygon(_outline([pE, pF, pI, pG], thickness));
+            polygon(_outline([pC, pE, pG], thickness));
+            polygon(_outline([pB, pC, pG, pH], thickness));
+            polygon(_outline([pG, pI, p2, pH], thickness));
+        }
+    }
+}
+
+/**
+ *           Goma Gara
+ *
+ *   3--F-----------E--2
+ *   |   `-.     ,-'   |
+ *   G      '-K-'     ,D
+ *   |`-.  ,-' `-. ,-' |
+ *   |   :L.     ,J.   |
+ *   H,-'   `-I-'   `-.C
+ *   |     ,-' `-.     |
+ *   0----A-------B----1
+ *
+ */
+module MasuTsunagi(rectangle, thickness)
+{
+    // Decompose tile into quarters
+    for (quarterRect = _subdivide(rectangle))
+    {
+        p0 = quarterRect[0];
+        p1 = quarterRect[1];
+        p2 = quarterRect[2];
+        p3 = quarterRect[3];
+        pA = _interpolate(p0, p1, 1/3);
+        pB = _interpolate(p0, p1, 2/3);
+        pC = _interpolate(p1, p2, 1/3);
+        pD = _interpolate(p1, p2, 2/3);
+        pE = _interpolate(p2, p3, 1/3);
+        pF = _interpolate(p2, p3, 2/3);
+        pG = _interpolate(p3, p0, 1/3);
+        pH = _interpolate(p3, p0, 2/3);
+        pI = _interpolate(pA, pD, 1/3);
+        pJ = _interpolate(pA, pD, 2/3);
+        pK = _interpolate(pH, pE, 2/3);
+        pL = _interpolate(pH, pE, 1/3);
+        
+        polygon(_outline([p0, pA, pI, pL, pH], thickness));
+        polygon(_outline([pA, pB, pI], thickness));
+        polygon(_outline([pC, pD, pJ], thickness));
+        polygon(_outline([pE, pF, pK], thickness));
+        polygon(_outline([pH, pL, pG], thickness));
+    }
+}
+
+/**
  * Draws a rectangular box frame on the inside
  * 
  * 3----2  +----+
@@ -313,6 +455,7 @@ module Frame(rectangle, side, thickness)
     if (side == FRAME_TOP)
         polygon([p2, p22, p33, p3]);
 }
+
 
 //  _   _ _   _ _ _ _         
 // | | | | |_(_) (_) |_ _   _ 
@@ -413,6 +556,24 @@ function _outline(shape, thickness, geometry = CLOSED) =
         : // geometry == PARTIAL
         [p1, p2, p3, p33, p22, p11]
         
+    : len(shape) == 5 // Pentagon
+    ? let (p3 = shape[3],
+           p4 = shape[4],
+           p00 = _innerPoint([p3, p0, p1], thickness, geometry),
+           p11 = _innerPoint([p0, p1, p2], thickness),
+           p22 = _innerPoint([p1, p2, p3], thickness),
+           p33 = _innerPoint([p2, p3, p0], thickness),
+           p44 = _innerPoint([p3, p4, p0], thickness))
+        geometry == CLOSED
+        ? [p0, p1, p2, p3, p4, p0, p00, p44, p33, p22, p11, p00]
+        
+        : let(p44 = _innerPoint([p0, p4, p3], thickness, OPEN))
+        geometry == OPEN
+        ? [p0, p1, p2, p3, p4, p44, p33, p22, p11, p00]
+
+        : // geometry == PARTIAL
+        [p1, p2, p3, p4, p44, p33, p22, p11]
+        
     : // Other polygon
         [];
 
@@ -477,7 +638,7 @@ function _triangulate(shape) =
              p3 = shape[3])
         [
             [p0, p1, p2],
-            [p0, p2, p3]
+            [p0, p3, p2]
         ];
 
 /**
@@ -513,7 +674,7 @@ function _trapizate(shape) =
      : [];
     
 /**
- * Rotates every second shape
+ * Rotates every Nth  shape
  * +--+ +--+ +--+ +--+    +--+ +--+ +--+ +--+
  * |32| |32| |32| |32|    |32| |21| |32| |21|
  * |01| |01| |01| |01| -> |01| |30| |01| |30|
@@ -549,10 +710,10 @@ function _rotateShape(shape, rotateNow=true) =
     ? shape
     
     : len(shape) == 3
-    ? [shape[2], shape[0], shape[1]]
+    ? [shape[1], shape[2], shape[0]]
 
     : len(shape) == 4
-    ? [shape[3], shape[0], shape[1], shape[2]]
+    ? [shape[1], shape[2], shape[3], shape[0]]
     
     : shape;
 
