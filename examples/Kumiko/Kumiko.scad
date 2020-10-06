@@ -16,8 +16,8 @@
 // --------
 // Kumiko(KAKUASANOHA, [[0,0],[1,0],[1,1],[0,1]], [2,2]);
 
-rows=3;
-cols=3;
+rows=4;
+cols=4;
 for (x = [0:1:(rows-1)])
 {
     for (y = [0:1:(cols-1)])
@@ -35,15 +35,21 @@ for (x = [0:1:(rows-1)])
 NONE = 0; // Can be used to only draw the frame
 
 // Square
-KAKUASANOHA  = 1;
-GOMAGARA     = 2;
-TSUTSUIDUTSU = 3;
-MASUTSUNAGI  = 4;
+    KAKUASANOHA  = 1;
+    GOMAGARA     = 2;
+    // Masu
+    MASUTSUNAGI  = 4;
+    MIEMASUTSUNAGI = 5;
+    CHOCHINMASUTSUGI = 6;
+    // Kaku
+    KAKUTSUNAGI = 7;
+    // ?
+    TSUTSUIDUTSU = 3;
 
 // Hexagonal
-MITSUKUDE    = 6;
-ASANOHA      = 7;
-BISHAMON     = 5;
+MITSUKUDE    = 9;
+ASANOHA      = 10;
+BISHAMON     = 8;
 
 /*
 Sakura
@@ -133,6 +139,13 @@ module Kumiko(pattern = KAKUASANOHA,
                 GomaGara(tile, actualThickness);
             if (pattern == MASUTSUNAGI)
                 MasuTsunagi(tile, actualThickness);
+            if (pattern == MIEMASUTSUNAGI)
+                MieMasuTsunagi(tile, actualThickness);
+            if (pattern == CHOCHINMASUTSUGI)
+                ChochinMasuTsugi(tile, actualThickness);
+            if (pattern == KAKUTSUNAGI)
+                KakuTsunagi(tile, actualThickness);
+                
         }
     }
 }
@@ -332,7 +345,7 @@ module Tsutsuidutsu(rectangle, thickness)
 }
 
 /**
- *           Goma Gara
+ *        Goma Gara
  *
  *   3                 ,-2
  *                  ,-H ,I
@@ -375,7 +388,7 @@ module GomaGara(rectangle, thickness)
 }
 
 /**
- *           Goma Gara
+ *      Masu Tsunagi
  *
  *   3--F-----------E--2
  *   |   `-.     ,-'   |
@@ -404,16 +417,161 @@ module MasuTsunagi(rectangle, thickness)
         pF = _interpolate(p2, p3, 2/3);
         pG = _interpolate(p3, p0, 1/3);
         pH = _interpolate(p3, p0, 2/3);
-        pI = _interpolate(pA, pD, 1/3);
-        pJ = _interpolate(pA, pD, 2/3);
-        pK = _interpolate(pH, pE, 2/3);
-        pL = _interpolate(pH, pE, 1/3);
+        pI = _interpolate(pA, pD, 1/4);
+        pJ = _interpolate(pA, pD, 3/4);
+        pK = _interpolate(pH, pE, 3/4);
+        pL = _interpolate(pH, pE, 1/4);
         
         polygon(_outline([p0, pA, pI, pL, pH], thickness));
         polygon(_outline([pA, pB, pI], thickness));
         polygon(_outline([pC, pD, pJ], thickness));
         polygon(_outline([pE, pF, pK], thickness));
         polygon(_outline([pH, pL, pG], thickness));
+        polygon(_outline([pB, p1, pC, pJ, pI], thickness));
+        polygon(_outline([p2, pE, pK, pJ, pD], thickness));
+        polygon(_outline([p3, pG, pL, pK, pF], thickness));
+        polygon(_outline([pI, pJ, pK, pL], thickness));
+    }
+}
+
+/**
+ *     Mie Masu Tsunagi
+ *
+ *   3--F-----------E--2
+ *   |`. `-.     ,-' ,-|
+ *   G  `.  '-K-' ,-' ,D
+ *   |`-. `P-' `O. ,-' |
+ *   |   :L.`,Q' ,J.   |
+ *   H,-' ,-M- -'N. `-.C
+ *   | ,-' ,-'I`-. `.  |
+ *   0----A-------B----1
+ *
+ */
+module MieMasuTsunagi(rectangle, thickness)
+{
+    // Decompose tile into quarters
+    for (quarterRect = _subdivide(rectangle))
+    {
+        p0 = quarterRect[0];
+        p1 = quarterRect[1];
+        p2 = quarterRect[2];
+        p3 = quarterRect[3];
+        pA = _interpolate(p0, p1, 1/3);
+        pB = _interpolate(p0, p1, 2/3);
+        pC = _interpolate(p1, p2, 1/3);
+        pD = _interpolate(p1, p2, 2/3);
+        pE = _interpolate(p2, p3, 1/3);
+        pF = _interpolate(p2, p3, 2/3);
+        pG = _interpolate(p3, p0, 1/3);
+        pH = _interpolate(p3, p0, 2/3);
+        pI = _interpolate(pA, pD, 1/4);
+        pJ = _interpolate(pA, pD, 3/4);
+        pK = _interpolate(pH, pE, 3/4);
+        pL = _interpolate(pH, pE, 1/4);
+        pM = _interpolate(pL, pI);
+        pN = _interpolate(pI, pJ);
+        pO = _interpolate(pJ, pK);
+        pP = _interpolate(pK, pL);
+        pQ = _interpolate(pM, pO);
+        
+        polygon(_outline([pA, pB, pI], thickness));
+        polygon(_outline([pC, pD, pJ], thickness));
+        polygon(_outline([pE, pF, pK], thickness));
+        polygon(_outline([pH, pL, pG], thickness));
+        polygon(_outline([p0, pA, pI, pM], thickness));
+        polygon(_outline([p0, pM, pL, pH], thickness));
+        polygon(_outline([p1, pC, pJ, pN], thickness));
+        polygon(_outline([p1, pN, pI, pB], thickness));
+        polygon(_outline([p2, pE, pK, pO], thickness));
+        polygon(_outline([p2, pO, pJ, pD], thickness));
+        polygon(_outline([p3, pP, pK, pF], thickness));
+        polygon(_outline([p3, pG, pL, pP], thickness));
+        polygon(_outline([pI, pJ, pK, pL], thickness));
+        polygon(_outline([pI, pN, pQ, pM], thickness));
+        polygon(_outline([pJ, pO, pQ, pN], thickness));
+        polygon(_outline([pK, pP, pQ, pO], thickness));
+        polygon(_outline([pL, pM, pQ, pP], thickness));
+    }
+}
+
+/**
+ *     Mie Masu Tsunagi
+ *
+ *   3-------C-------2
+ *   |       |       |
+ *   |       G       |
+ *   |    ,-' `-.    |
+ *   D---H       F---B
+ *   |    `-. ,-'    |
+ *   |       E       |
+ *   |       |       |
+ *   0-------A-------1
+ *
+ */
+module ChochinMasuTsugi(rectangle, thickness)
+{
+    // Decompose tile into quarters
+    for (quarterRect = _subdivide(rectangle))
+    {
+        p0 = quarterRect[0];
+        p1 = quarterRect[1];
+        p2 = quarterRect[2];
+        p3 = quarterRect[3];
+        pA = _interpolate(p0, p1);
+        pB = _interpolate(p1, p2);
+        pC = _interpolate(p2, p3);
+        pD = _interpolate(p3, p0);
+        pE = _interpolate(pA, pC, 1/3);
+        pG = _interpolate(pA, pC, 2/3);
+        pH = _interpolate(pD, pB, 1/3);
+        pF = _interpolate(pD, pB, 2/3);
+        
+        polygon(_outline([p0, pA, pE, pH, pD], thickness));
+        polygon(_outline([p1, pB, pF, pE, pA], thickness));
+        polygon(_outline([p2, pC, pG, pF, pB], thickness));
+        polygon(_outline([p3, pD, pH, pG, pC], thickness));
+        polygon(_outline([pE, pF, pG, pH], thickness));
+    }
+}
+
+/**
+ *      Kaku Tsunagi
+ *
+ *   3----------C----2
+ *   |          |    |
+ *   |    H-----G----B
+ *   |    |     |    |
+ *   |    |     |    |
+ *   D----E-----F    |
+ *   |    |          |
+ *   0----A----------1
+ *
+ */
+module KakuTsunagi(rectangle, thickness)
+{
+    // Decompose tile into quarters
+    for (quarterRect = _mirrorEveryNth(_subdivide(rectangle), 1, 2))
+    {
+        p0 = quarterRect[0];
+        p1 = quarterRect[1];
+        p2 = quarterRect[2];
+        p3 = quarterRect[3];
+        pA = _interpolate(p0, p1, 1/3);
+        pB = _interpolate(p1, p2, 2/3);
+        pC = _interpolate(p2, p3, 1/3);
+        pD = _interpolate(p3, p0, 2/3);
+        pE = _interpolate(p0, p2, 1/3);
+        pG = _interpolate(p0, p2, 2/3);
+        pH = _interpolate(p1, p3, 2/3);
+        pF = _interpolate(p1, p3, 1/3);
+        
+        polygon(_outline([p0, pA, pE, pD], thickness));
+        polygon(_outline([p1, pB, pG, pF], thickness, OPEN));
+        polygon(_outline([pF, pE, pA, p1], thickness, OPEN));
+        polygon(_outline([p2, pC, pG, pB], thickness));
+        polygon(_outline([p3, pD, pE, pH], thickness, OPEN));
+        polygon(_outline([pH, pG, pC, p3], thickness, OPEN));
+        polygon(_outline([pE, pF, pG, pH], thickness));
     }
 }
 
@@ -559,10 +717,10 @@ function _outline(shape, thickness, geometry = CLOSED) =
     : len(shape) == 5 // Pentagon
     ? let (p3 = shape[3],
            p4 = shape[4],
-           p00 = _innerPoint([p3, p0, p1], thickness, geometry),
+           p00 = _innerPoint([p4, p0, p1], thickness, geometry),
            p11 = _innerPoint([p0, p1, p2], thickness),
            p22 = _innerPoint([p1, p2, p3], thickness),
-           p33 = _innerPoint([p2, p3, p0], thickness),
+           p33 = _innerPoint([p2, p3, p4], thickness),
            p44 = _innerPoint([p3, p4, p0], thickness))
         geometry == CLOSED
         ? [p0, p1, p2, p3, p4, p0, p00, p44, p33, p22, p11, p00]
@@ -573,6 +731,26 @@ function _outline(shape, thickness, geometry = CLOSED) =
 
         : // geometry == PARTIAL
         [p1, p2, p3, p4, p44, p33, p22, p11]
+        
+    : len(shape) == 6 // Hexagon
+    ? let (p3 = shape[3],
+           p4 = shape[4],
+           p5 = shape[5],
+           p00 = _innerPoint([p5, p0, p1], thickness, geometry),
+           p11 = _innerPoint([p0, p1, p2], thickness),
+           p22 = _innerPoint([p1, p2, p3], thickness),
+           p33 = _innerPoint([p2, p3, p4], thickness),
+           p44 = _innerPoint([p3, p4, p5], thickness),
+           p55 = _innerPoint([p4, p5, p0], thickness))
+        geometry == CLOSED
+        ? [p0, p1, p2, p3, p4, p5, p0, p00, p55, p44, p33, p22, p11, p00]
+        
+        : let(p55 = _innerPoint([p0, p5, p4], thickness, OPEN))
+        geometry == OPEN
+        ? [p0, p1, p2, p3, p4, p5, p55, p44, p33, p22, p11, p00]
+
+        : // geometry == PARTIAL
+        [p1, p2, p3, p4, p5, p55, p44, p33, p22, p11]
         
     : // Other polygon
         [];
