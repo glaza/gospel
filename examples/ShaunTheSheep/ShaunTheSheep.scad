@@ -1,4 +1,4 @@
-include <../gospel.scad>
+include <../../gospel.scad>
 
 
 //retainer();
@@ -35,7 +35,7 @@ module head() {
 module mouth(){
     ry(90)    
     {
-        rotate_extrude(angle=180, convexity = 4)
+        rotate_extrude(angle=360, convexity = 4)
         x(7.5)
         circle(d = 3, $fn=20);
         
