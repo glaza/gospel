@@ -21,6 +21,8 @@
  *  yz     Translate equaly in Y and Z
  *  xyz    Translate equaly in X, Y and Z
  */
+function rand(value, variation=0) = value + rands(-variation,variation,1)[0]; 
+ 
 module x(dx, variation=0) 
 {   
     vx = rands(-variation,variation,1)[0];
@@ -142,31 +144,31 @@ module mz()
  *      mx: YZ plane, my: XZ plane, mz: XY plane
  */
 module sx(factor, variation=0) 
-{   
-    v = rands(-variation,variation,1)[0];
-    scale([factor+v,1,1])
+{
+    scaleFactor = rand(factor, variation);
+    scale([scaleFactor,1,1])
     children();
 }
 module sy(factor, variation=0) 
-{   
-    v = rands(-variation,variation,1)[0];
-    scale([1,factor+v,1])
+{
+    scaleFactor = rand(factor, variation);
+    scale([1,scaleFactor,1])
     children();
-} 
+}
 module sz(factor, variation=0) 
-{   
-    v = rands(-variation,variation,1)[0];
-    scale([1,1,factor+v])
+{
+    scaleFactor = rand(factor, variation);
+    scale([1,1,scaleFactor])
     children();
 }
 module sxy(factor, variation=0) 
-{   
+{
     sx(factor, variation)
     sy(factor, variation)
     children();
 }
 module syz(factor, variation=0) 
-{   
+{
     sz(factor, variation)
     sy(factor, variation)
     children();
