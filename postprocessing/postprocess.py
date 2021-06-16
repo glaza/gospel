@@ -5,7 +5,8 @@ import re
 import os
 
 TIME_LAPSE_CAMERA = True
-TIME_REMAINING = True
+CAMERA_Y_POSITION = 110 # Center
+TIME_REMAINING = False
 RETRACTION = 5 #mm
 FILE_NAME_PREFIX = "p"
 
@@ -90,7 +91,7 @@ def process(input_file, output_file):
                     e(output_file,
                       last_extruder_position - RETRACTION,
                       "Retract {0:d}mm".format(RETRACTION))
-                xy(output_file, 20, 220, "Position the plate")
+                xy(output_file, 20, CAMERA_Y_POSITION, "Position the plate")
                 x(output_file, 0, "Click the shutter button")
                 x(output_file, 20, "Pause for just a bit")
                 output_line(output_file, last_g_line)

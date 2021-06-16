@@ -83,7 +83,7 @@ module rx(angle, variation=0)
 module ry(angle, variation=0) 
 {   
     v = rands(-variation,variation,1)[0];
-    rotate([0,angle+v,0,0])
+    rotate([0,angle+v,0])
     children();
 }
 module rz(angle, variation=0) 
