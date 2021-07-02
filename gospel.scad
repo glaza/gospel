@@ -201,26 +201,15 @@ module diff() //does not work
 /**
  * Colours
  */
-module red()
-{
-    color("Red")
-    children();
-}
-module blue()
-{
-    color("RoyalBlue")
-    children();
-}
-module black()
-{
-    color("Black")
-    children();
-}
-module white()
-{
-    color("White")
-    children();
-}
+module red()     { color("Red") children(); }
+module blue()    { color("RoyalBlue") children(); }
+module green()   { color("Green") children(); }
+module black()   { color("Black") children(); }
+module white()   { color("White") children(); }
+module cyan()    { color("Cyan") children(); }
+module magenta() { color("Magenta") children(); }
+module yellow()  { color("Yellow") children(); }
+module glass()   { color([0.5, 0.5, 1], 0.25) children(); }
 
 /**
  * shapes

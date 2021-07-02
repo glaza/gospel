@@ -26,21 +26,25 @@ module legs() {
 module leg() {
     ry(-90) rz(-20) z(0.25*BODY_HEIGHT) ry(-90) z(65) { 
         cylinder(d=LEG_HOLE_DIAMETER-0.25, h=10);
-        z(5) for (i = [0:30])
-        rx(0.4*i) z(0.9*i) rx(0.25*i) { 
-            if (i<29) {
-               cylinder(d=LEG_DIAMETER, h=1);
-            } else {
-                z(7.5) rz(180) rx(180) difference() {
-                    sphere(d=20, $fn=50);
-                    z(-10)
-                    cube([20,20,20], center=true);
-                    x(10)
-                    cylinder(d=5, h=10, $fn=20);
-                } 
+    }
+    for (i = [0:30]){        
+        if (i<30) {
+            ry(-90) rz(-20) z(0.25*BODY_HEIGHT) ry(-90) z(65) { 
+                z(5) rx(0.4*i) z(0.9*i) rx(0.25*i) { 
+                    cylinder(d=LEG_DIAMETER, h=1);
+                }
             }
+        } else {                
+            x(-25) y(28) z(-100) difference() {
+                sphere(d=20, $fn=50);
+                z(-10)
+                cube([20,20,20], center=true);
+                x(10)
+                cylinder(d=5, h=10, $fn=20);
+            } 
         }
     }
+    
 }
 
 module bottom() {
