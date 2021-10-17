@@ -12,10 +12,13 @@
 // https://simplynativejapan.com.au/materials/kumiko
 // https://www.tanihata.co.jp/english/takumi/tree
 // http://www.sashikan.com/en/design_list.html
-
+//
 // Example:
 // --------
 // Kumiko(KAKUASANOHA, [[0,0],[1,0],[1,1],[0,1]], [2,2]);
+
+
+/////////////////////////// Customizer /////////////////////////////
 
 /* [Main Parameters] */
 // The Kumiko pattern to render
@@ -43,6 +46,8 @@ fullFrameThickness = true;
 // Thickness of each segment. Value of 0 results in a 3% of the area size. Ex: If width & height are 1, thickness will be calculated to be 0.03.
 thickness = 0;
 
+
+
 linear_extrude(depth)
 Kumiko(
     pattern,
@@ -53,6 +58,8 @@ Kumiko(
 );
 
 
+
+////////////////////// Demo just tiles all patterns ////////////////////
 //demo();
 
 // The following for-loop draws all possible patterns for demonstration
@@ -64,6 +71,7 @@ module demo(size=4) {
         }
     }
 }
+
 
 // Pattern Constants:
 // ------------------
