@@ -3,6 +3,7 @@
 // It generates 2D polygons very fast
 // Don't forget to linear_extrude it!
 // @author George Laza (geodynamics)
+// https://github.com/glaza/gospel/tree/master/examples/Kumiko
 //
 // Sample images can be found at these sites:
 // ------------------------------------------
@@ -16,42 +17,73 @@
 // --------
 // Kumiko(KAKUASANOHA, [[0,0],[1,0],[1,1],[0,1]], [2,2]);
 
-rows=4;
-cols=4;
-for (x = [0:1:(rows-1)])
-{
-    for (y = [0:1:(cols-1)])
-    {
-        tile = _computeTileRect([[0,0],[10,0],[10,10],[0,10]], [3, 3], x, y);
-        
-        Kumiko(x + y*cols,
-               _scaleRect(tile, -.2),
-               [2, 2]);
+/* [Main Parameters] */
+// The Kumiko pattern to render
+pattern = 0; // [0:KakuAsanoha, 1:KakuTsunagi, 2:MasuTsunagi, 3:MieMasuTsunagi, 4:ChochinMasuTsunagi, 5:GomaGara, 6:Tsutsuidutsu, 7:MitsuKude, 8:Asanoha, 9:Bishamon]
+
+// Width of the tiling area (size in X-axis direction)
+width = 10;
+
+// Height of the tiling area (size in Y-axis direction)
+height = 10;
+
+// The number of tiles in the Y direction
+rows = 2;
+
+// The number of tiles in the X direction
+columns = 2;
+
+// The depth of the pattern (size in the Z-direction). If you want perfect square segments, this value should be half of the thickness.
+depth = 0.15;
+
+/* [Detailed Parameters] */
+// Wether to render the outer frame in full thickness. Only set fullFrameThickness to false if you intend to print multiple tiles and glue them together. Then the frame rendered with half of the thickness is desirable. If you need half frame only on a few sides, edit the Kumiko() module and comment out the Frame() call that you want to omit.
+fullFrameThickness = true;
+
+// Thickness of each segment. Value of 0 results in a 3% of the area size. Ex: If width & height are 1, thickness will be calculated to be 0.03.
+thickness = 0;
+
+linear_extrude(depth)
+Kumiko(
+    pattern,
+    [[0,0],[width,0],[width,height],[0,height]], // area
+    [rows, columns],
+    fullFrameThickness,
+    thickness
+);
+
+
+//demo();
+
+// The following for-loop draws all possible patterns for demonstration
+module demo(size=4) {
+    for (x = [0:1:(size-1)]) {
+        for (y = [0:1:(size-1)]) {
+            tile = _computeTileRect([[0,0],[10,0],[10,10],[0,10]], [3, 3], x, y);
+            Kumiko(x + y*size, _scaleRect(tile, -.2), [2, 2]);
+        }
     }
 }
 
 // Pattern Constants:
 // ------------------
-NONE = 0; // Can be used to only draw the frame
+//  Square:
+//      Kaku:
+          KAKUASANOHA  = 0;
+          KAKUTSUNAGI  = 1;
+//      Masu:
+          MASUTSUNAGI  = 2;
+          MIEMASUTSUNAGI = 3;
+          CHOCHINMASUTSUNAGI = 4;
+//      Other:
+          GOMAGARA     = 5;
+          TSUTSUIDUTSU = 6;
+//  Hexagonal:
+      MITSUKUDE    = 7;
+      ASANOHA      = 8;
+      BISHAMON     = 9;
 
-// Square
-    KAKUASANOHA  = 1;
-    GOMAGARA     = 2;
-    // Masu
-    MASUTSUNAGI  = 4;
-    MIEMASUTSUNAGI = 5;
-    CHOCHINMASUTSUGI = 6;
-    // Kaku
-    KAKUTSUNAGI = 7;
-    // ?
-    TSUTSUIDUTSU = 3;
-
-// Hexagonal
-MITSUKUDE    = 9;
-ASANOHA      = 10;
-BISHAMON     = 8;
-
-/*
+/* Others...
 Sakura
 SakuraKikko
 KasaneRindo
@@ -130,7 +162,7 @@ module Kumiko(pattern = KAKUASANOHA,
             if (pattern == ASANOHA)
                 Asanoha(tile, actualThickness);
             if (pattern == MITSUKUDE)
-                Mitsukude(tile, actualThickness);
+                MitsuKude(tile, actualThickness);
             if (pattern == BISHAMON)
                 BishamonKikkou(tile, actualThickness);
             if (pattern == TSUTSUIDUTSU)
@@ -141,8 +173,8 @@ module Kumiko(pattern = KAKUASANOHA,
                 MasuTsunagi(tile, actualThickness);
             if (pattern == MIEMASUTSUNAGI)
                 MieMasuTsunagi(tile, actualThickness);
-            if (pattern == CHOCHINMASUTSUGI)
-                ChochinMasuTsugi(tile, actualThickness);
+            if (pattern == CHOCHINMASUTSUNAGI)
+                ChochinMasuTsunagi(tile, actualThickness);
             if (pattern == KAKUTSUNAGI)
                 KakuTsunagi(tile, actualThickness);
                 
@@ -164,7 +196,7 @@ module Kumiko(pattern = KAKUASANOHA,
 //
 
 /**
- *      Mitsukude
+ *      Mitsu Kude
  *
  *   3            .2
  *   |         .-' |
@@ -177,7 +209,7 @@ module Kumiko(pattern = KAKUASANOHA,
  *   |         `-. |
  *   0            `1
  */
-module Mitsukude(rectangle, thickness)
+module MitsuKude(rectangle, thickness)
 {
     // Decompose tile into quarters
     for (quarterRect = _mirrorEveryNth(_mirrorEveryNth(_subdivide(rectangle), 1, 4), 2, 4))
@@ -495,7 +527,7 @@ module MieMasuTsunagi(rectangle, thickness)
 }
 
 /**
- *     Mie Masu Tsunagi
+ *     Chochin Masu Tsunagi
  *
  *   3-------C-------2
  *   |       |       |
@@ -508,7 +540,7 @@ module MieMasuTsunagi(rectangle, thickness)
  *   0-------A-------1
  *
  */
-module ChochinMasuTsugi(rectangle, thickness)
+module ChochinMasuTsunagi(rectangle, thickness)
 {
     // Decompose tile into quarters
     for (quarterRect = _subdivide(rectangle))
@@ -914,7 +946,7 @@ function _rotateShape(shape, rotateNow=true) =
  * @return A list of shapes with every Nth mirrored
  */
 function _mirrorEveryNth(shapes, start, n, i=0) =
-    let (mirrorNow = i >= start && (i - start) % n == 0)
+    let (mirrorNow = (i >= start) && (i - start) % n == 0)
     i == (len(shapes) - 1)
     ? [_mirrorShape(shapes[i], mirrorNow)] // Last shape
     : concat([_mirrorShape(shapes[i], mirrorNow)], _mirrorEveryNth(shapes, start, n, i+1));
