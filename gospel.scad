@@ -8,6 +8,7 @@
  *      Rotation:    rx, ry, rz (angle, variation)
  *      Duplication: dx, dy, dz ()
  */
+use <3rd_party/threads-library-by-cuiso-v1.scad>
 
 /**
  * Translates the children in the X,Y,Z direction
@@ -243,4 +244,14 @@ module rounded(size, r, half)
         
         cube(size);
     }
+}
+
+module screw(d, h, center=false) {
+    z(center ? -h : 0)
+    thread_for_screw(diameter=d - 1, length=h);
+}
+
+module thread(d, h, center=false) {
+    z(center ? -h : 0)
+    thread_for_nut(diameter=d, length=h); 
 }
