@@ -1,4 +1,4 @@
-use <../../../gospel.scad>
+use <../../gospel.scad>
 
 $fn = 50;
 HEIGHT = 40;

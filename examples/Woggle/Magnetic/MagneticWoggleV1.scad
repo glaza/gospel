@@ -1,4 +1,4 @@
-use <../../../gospel.scad>
+use <../../gospel.scad>
 
 $fn = 50;
 HEIGHT = 40;
@@ -10,7 +10,7 @@ MAGNET_DEPTH = 1;
 SCREW_DIAMETER = 10;
 SCREW_HEIGHT = 12;
 
-#body();
+#!body();
 
 rx(90)
 bit();
@@ -40,7 +40,7 @@ module body() {
             
             // Thread
             y(0.0001) rx(90)
-            thread(SCREW_DIAMETER, SCREW_HEIGHT, center=true);
+            thread(SCREW_DIAMETER, MAGNET_HEIGHT+2*MAGNET_DEPTH, center=true);
       
             // Magnets
             dz()
