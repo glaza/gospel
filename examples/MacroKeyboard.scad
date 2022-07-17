@@ -118,7 +118,6 @@ module knob() {
             x(KNOB_GROOVE_WIDTH)
             z(KNOB_DEPTH-KNOB_GROOVE_DEPTH)
             cube([KNOB_HOLE, KNOB_HOLE, KNOB_DEPTH], center=true);
-        }
-        
+        } 
     }
 }
