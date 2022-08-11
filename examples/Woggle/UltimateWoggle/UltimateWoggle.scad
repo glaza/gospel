@@ -1,79 +1,48 @@
 use <../../../3rd_party/threads-library-by-cuiso-v1.scad>
-use <../../../3rd_party/whistle.scad>
-use <../../../3rd_party/fillet.scad>
 
 $fn = 100;
 
-HEIGHT = 25;
+HEIGHT = 20;
 HOLE_DIAMETER = 25;
+RING_DIAMETER = 32;
+
 KNOB_DIAMETER = 20;
 SCREW_HOLE_DIAMETER = 12.5;
 SCREW_DIAMETER = 12;
-SCREW_LENGTH = 21.5;
+SCREW_LENGTH = 24.5;
 
-rounding_radius = 2;
-top_thinckness = 0;
-mouthpiece_size = [10, 12, 2.5];
+COVER_HEIGHT = HEIGHT + 2;
 
-ww_length = mouthpiece_size[0] + 9;
-ww_width  = mouthpiece_size[1] - 2;
-ww_height = mouthpiece_size[2];
-
-fi_length = mouthpiece_size[0] + 7;
-fi_width  = mouthpiece_size[1] - 2;
-fi_height = mouthpiece_size[2];
-fi_inset = 4;
-
-//translate([-10, 0, 0])
-//rotate([-90, 0, 180])
-//import("a-s1_print.stl");
-
-color("salmon")
-ring(height = HEIGHT, inner_diameter = HOLE_DIAMETER, screw_diameter = SCREW_HOLE_DIAMETER);
-
+// Ring
 color("cyan")
+ring(
+    height = HEIGHT,
+    inner_diameter = HOLE_DIAMETER,
+    outer_diameter = RING_DIAMETER,
+    screw_diameter = SCREW_HOLE_DIAMETER
+);
+
+// Screw
+color("white")
 knob(height = 5, knob_diameter = KNOB_DIAMETER, screw_diameter = SCREW_DIAMETER, screw_length = SCREW_LENGTH);
 
-//// Boxy whislte
-//union() 
-//{
-//    difference()
-//    {
-//        cube([25, 25, 25], center= true);
-//        whistle_cutout(20, 20, 5);
-//    }        // form fipple as a seperate piece
-//    
-//    translate([0, -20/2, -20/2])
-//    fipple(20, 20);
-//}
+// Cover
+color("red", 0.5)
+cover();
 
-//module whistle_cutout(length, width, height)
-//{
-//    
-//    translate([0, -width/2, -height/2])
-//    {
-//    //        body_part(length, width, height);
-//            
-//            cube([length, width, height-top_thinckness]);
-//            
-//            // Cutout Windway
-//            translate([
-//                -(mouthpiece_size[0]+rounding_radius+1), 
-//                (width - ww_width)/2, 
-//                height - ww_height
-//            ]) 
-//                cube([ww_length, ww_width, ww_height]);
-//            
-//            // Cutout for fipple block
-//            fipple_block(width, height);
-//    }
-//}
-
-module ring(height, inner_diameter, screw_diameter)
+module cover()
 {
-    outer_diameter = inner_diameter + 10;
-    middle_diameter = (inner_diameter + outer_diameter)/2;
+    difference()
+    {
+        cylinder(d = RING_DIAMETER + 3, h = COVER_HEIGHT, center = true);
+        
+        cylinder(d = HOLE_DIAMETER, h = COVER_HEIGHT + 1, center = true);
+        translate([0, 0, -2]) cylinder(d = RING_DIAMETER + 1, h = COVER_HEIGHT, center = true);
+    }
+}
 
+module ring(height, inner_diameter, outer_diameter, screw_diameter)
+{
     difference()
     {
         difference()
@@ -86,20 +55,14 @@ module ring(height, inner_diameter, screw_diameter)
                 // Inner ring
                 chopped_ring(height, outer_diameter, inner_diameter, start = 0, end = 0.85);
                 
-                // Screw landing
+                // Screw landing pad
                 translate([-13, 0, 0]) rotate([0, 90, 0])
-                cylinder(d = SCREW_HOLE_DIAMETER, h = 5);
+                cylinder(d = SCREW_HOLE_DIAMETER, h = 2);
             }
             
-            // Cutout for screw
+            // Screw head cutout
             translate([0.7 * outer_diameter/2, 0, 0])
-            cube([6, KNOB_DIAMETER + 2, height], center = true);
-            
-            
-            // Cutout for fipple block
-            translate([-3-middle_diameter/2, -2.5, -5])
-            rotate([0, -90, 0])
-            fipple(5, 0);
+            cube([6, KNOB_DIAMETER + 2, height + 1], center = true);
         }
 
         // Screw Thread Hole
@@ -114,16 +77,42 @@ module knob(height, knob_diameter, screw_diameter, screw_length)
     translate([knob_diameter-6, 0, 0])
     rotate([0, -90, 0])
     {
-        cylinder(h = height, d = knob_diameter);
-        for (angle = [0:30:360])
+        intersection()
         {
-            rotate([0, 0, angle])
-            translate([knob_diameter/2, 0, 0])
-            cylinder(h = height, d = 0.1 * knob_diameter);
+            union()
+            {
+                // Main head
+                cylinder(h = height, d = knob_diameter);
+                // Teeth
+                for (angle = [0:30:360])
+                {
+                    rotate([0, 0, angle])
+                    translate([knob_diameter/2, 0, 0])
+                    cylinder(h = height, d = 0.1 * knob_diameter);
+                }
+            }
+            
+            // Cone shape
+            cylinder(h = height, d2 = 1.75 * knob_diameter, d1 = 0.8 * knob_diameter);
         }
+        
         thread_for_screw(diameter=screw_diameter, length=screw_length);
     }
 }
+
+module chopped_ring(height, outer_diameter, inner_diameter, start, end)
+{
+    difference()
+    {
+        // Outer Ring
+        chopped_cylinder(height, outer_diameter, start, end);
+        
+        // Inner Ring Cutout
+        scale([1, 1, 1.1])
+        chopped_cylinder(height, inner_diameter, start, end - 0.05);
+    }
+}
+
 
 module chopped_cylinder(height, diameter, start = 0, end = 1)
 {
@@ -133,17 +122,5 @@ module chopped_cylinder(height, diameter, start = 0, end = 1)
 
         translate([(start + (end - start)/2 - 0.5) * diameter, 0, 0])
         cube([(end - start) * diameter, diameter, height], center = true);
-    }
-}
-
-module chopped_ring(height, outer_diameter, inner_diameter, start, end) {
-    difference()
-    {
-        // Outer Ring
-        chopped_cylinder(height, outer_diameter, start, end);
-        
-        // Inner Ring Cutout
-        scale([1, 1, 1.1])
-        chopped_cylinder(height, inner_diameter, start, end - 0.05);
     }
 }
