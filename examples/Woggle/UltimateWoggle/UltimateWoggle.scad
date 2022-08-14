@@ -12,6 +12,7 @@ SCREW_DIAMETER = 12;
 SCREW_LENGTH = 24.5;
 
 COVER_HEIGHT = HEIGHT + 2;
+COVER_INNER_DIAMETER = RING_DIAMETER + 1;
 
 // Ring
 color("cyan")
@@ -28,17 +29,78 @@ knob(height = 5, knob_diameter = KNOB_DIAMETER, screw_diameter = SCREW_DIAMETER,
 
 // Cover
 color("red", 0.5)
-cover();
+blank_cover();
 
-module cover()
+union()
+{   color("red")
+    cover_cutout();
+    //vader();
+    //monster();
+    //minion();
+}
+
+module blank_cover()
 {
     difference()
     {
         cylinder(d = RING_DIAMETER + 3, h = COVER_HEIGHT, center = true);
         
         cylinder(d = HOLE_DIAMETER, h = COVER_HEIGHT + 1, center = true);
-        translate([0, 0, -2]) cylinder(d = RING_DIAMETER + 1, h = COVER_HEIGHT, center = true);
+        
+        translate([0, 0, -2])
+        cylinder(d = COVER_INNER_DIAMETER, h = COVER_HEIGHT, center = true);
     }
+}
+
+// Has a bend that does not fit
+module tooth()
+{
+    scale([0.45, 0.45, 0.45])
+    rotate([14, 0, 0])
+    translate([-4, -16, -90])
+    import("Covers/tooth-2657612.stl", 3);
+}
+
+module vader()
+{    
+    scale(0.7)
+    rotate([0, 0, 0])
+    translate([-100, -95, -45])
+    import("Covers/vader-1685408.stl");
+}
+
+module monster()
+{    
+    scale(0.5)
+    rotate([0, 0, 0])
+    translate([0, -11, -25])
+    import("Covers/monster-154516.stl");
+}
+
+// Seems not to be manifold
+module minion()
+{
+    scale(0.65)
+    rotate([0, 0, 0])
+    translate([-00, -10, -80])
+    import("Covers/Minion_Dave-403110.stl");
+}
+
+module monster()
+{    
+    scale(0.5)
+    rotate([0, 0, 0])
+    translate([0, -11, -25])
+    import("Covers/monster-154516.stl");
+}
+
+module cover_cutout()
+{
+    cylinder(d = HOLE_DIAMETER, h = 4*COVER_HEIGHT, center = true);
+    
+    translate([0, 0, COVER_HEIGHT/2-2])
+    rotate([180, 0, 0])
+    cylinder(d = COVER_INNER_DIAMETER, h = 5*COVER_HEIGHT);
 }
 
 module ring(height, inner_diameter, outer_diameter, screw_diameter)
