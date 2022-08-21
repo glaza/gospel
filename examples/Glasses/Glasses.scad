@@ -4,6 +4,10 @@ frames();
 mx() handle();
 handle();
 
+// Build plate
+//color("grey") z(-5) y(-70) rz(45)
+//cube([230, 230, 1], center=true);
+
 module frames() {
     dist=14;
 
@@ -21,121 +25,63 @@ module frames() {
 }
 
 module handle() {
-    x(-75) y(5) z(2.5)
+    x(-60) y(5) z(2.5)
     union() {
-        y(8.5)
-        sy(1.2)
-        shaft();
-        
-        y(-0.5)
-        shaft();
-        
-        y(-2.5)
-        sxz(2)
-        sy(0.5)
-        pin();
         
         y(-3.75) z(-2.5)
         union() {
-            difference() {
-                mx()
-                cube([5, 12.25, 2.5]);
-                
-                my()
-                sy(10)
-                z(2.5) 
-                pin();
-                
-                y(3.25)
-                my()
-                sy(2.4)
-                z(2.5)
-                sxz(2.1) 
-                pin();
-            }
             
-            x(-5.25) y(6.1)
-            sx(0.5) sy(1.23)
-            cylinder(d=10, h=2.5, $fn=30);
+            x(-5.7) y(5.65)
+            cylinder(d=8, h=2.5, $fn=30);
             
             //rod
-            rz(7.5)            
+            rz(47.5)            
             union() {        
             
-                x(-4) y(5.5)
+                y(7)
                 mx()
                 cube([84, 5, 2.5]);
                 
-                x(-88) y(-14.35)
+                x(-84) y(-12.85)
                 difference() {
                     cylinder(d=50, h=2.5);
-                    cylinder(d=40, h=2.5);
-                    
-                    y(-25)
-                    cube([50,50,3]);
-                    x(-25) y(-50)
-                    cube([50,50,3]);
+                    z(-0.005) {
+                        cylinder(d=40, h=3);
+                        y(-25) cube([50,50,4]);
+                        x(-25) y(-50) cube([50,50,4]);
+                    }
                 }
                 
-                x(-113) y(-34.35)
+                x(-109) y(-32.5)
                 cube([5,20,2.5]);
             }
         }        
     }
 }
 
-
 module frame_hinge() {
-    
-    x(-26) y(10) z(4)
-    z(1.75/2)
-    for (i = [0:1]) {
-        y(0.5-3.5*i)
-        {
-            shaft();
-            
-            holder_diamater=4;
-            x(-0) y(0) z(-1.75)
-            ry(45) rx(90) rz(90)
-            difference() {
-                cylinder(d=holder_diamater, h=2.5, $fn=25);
-                cube([50,50,50]);
-            }
-        }
-    }
-}
-
-module shaft() difference() {
-    sxz(2)
-    pin();
-    pin();
-}
-
-module pin() {
-    rx(90)
-    cylinder(d=2.5, h=2.5, $fn=25);
+    x(-26) y(-2)
+    cube([2, 10, 10]);
 }
 
 module frame() {
     difference() {
         union() {
-            sxy(1.1) lens();
-            frame_hinge();
+            sxy(1.15) lens();
+//            frame_hinge();
             blue() pad();
         }
+        z(-0.01) sz(1.03)
         lens();
-        x(-30) y(7) cube([10, 1, 3]);
+        //x(-30) y(7) cube([10, 1, 3]);
     }
 }
 
 module pad() {
-    x(23) y(-8) z(2.5)
-    rz(-22) {
-        cube([2.5, 7, 3]);
-        
-        x(0.1) z(2.3)
-        ry(-10)
-        cube([2, 7, 5]);
+    x(24) y(-8) z(1.5)
+    rz(-22) {      
+        ry(-15)
+        cube([2.5, 10, 7]);
     }
 }
 
