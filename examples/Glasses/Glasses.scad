@@ -31,18 +31,20 @@ module handle() {
         y(-3.75) z(-2.5)
         union() {
             
-            x(-5.7) y(5.65)
-            cylinder(d=8, h=2.5, $fn=30);
+            x(-5) y(7)
+            cylinder(d=6, h=2.5, $fn=30);
             
             //rod
             rz(47.5)            
             union() {        
             
-                y(7)
+                // Shaft
+                x(2.5) y(6.4)
                 mx()
-                cube([84, 5, 2.5]);
+                cube([92.5, 5, 2.5]);
                 
-                x(-84) y(-12.85)
+                // Curl
+                x(-90) y(-13.5)
                 difference() {
                     cylinder(d=50, h=2.5);
                     z(-0.005) {
@@ -52,7 +54,8 @@ module handle() {
                     }
                 }
                 
-                x(-109) y(-32.5)
+                //Tip
+                x(-115) y(-32.5)
                 cube([5,20,2.5]);
             }
         }        
