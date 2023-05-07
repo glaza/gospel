@@ -15,10 +15,9 @@ KNOB_DIAMETER = 17;
 
 GAP = 5;
 
-color("green", 1)
-mx() x(-GAP-KNOB_WIDTH/2) ring();
 color("red", 1)
-x(-GAP-KNOB_WIDTH/2) ring();
+dx() x(-GAP-KNOB_WIDTH/2) ring();
+
 ry(90) middle();
 
 
