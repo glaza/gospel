@@ -1,9 +1,17 @@
-use <../../gospel.scad>
+use <../../../gospel.scad>
 
 $fn = 50;
 
-//gubancs();
+gubancs();
 knob();
+y(-15) import("Liliom.stl", 3);
+
+//s(0.75)
+//y(20)
+//difference() {
+//    import("screw.stl", 3);
+//    cube(40, center=true);
+//}
 
 module knob(length = 15) {
     rx(-90) cylinder(r1=2, r2=0.5, h=2);
@@ -17,7 +25,7 @@ module gubancs() {
             spikes();
         }
         
-        cylinder(r=5, h=50, center=true);
+        cylinder(r=6, h=50, center=true);
         
         rx(90) thread(8, 20);
     }
@@ -25,8 +33,8 @@ module gubancs() {
 
 module spikes() {
     for(theta = [30:60:360]) {
-        for(phy = [-30:30:30]) {
-            rz(theta + phy)
+        for(phy = [-40:20:40]) {
+            rz(theta + 1.5*phy)
             ry(phy)
             x(10)
             spike();
