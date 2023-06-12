@@ -19,27 +19,42 @@ DRAWRS_COLOR = LIGHT_WOOD;
 
 
 
-color("white")
+color("dimgrey")
 legs(DESK_WIDTH, DESK_HEIGHT);
 
+color(DARK_WOOD)
 z(DESK_HEIGHT)
 top([DESK_WIDTH, DESK_DEPTH, PLYWOOD_THICKNESS]);
 
 x(DESK_WIDTH/2)
 y(MONITOR_SIZE.y-DESK_DEPTH/2)
-z(DESK_HEIGHT + 100)
-monitor();
+z(DESK_HEIGHT + 100) {
+    monitor();
+    
+    // Monitor Stand
+    color("black")
+    z(-150)
+    cylinder(r=MONITOR_STAND_RADIUS, h=300, center = true);
+}
 
 x(SHELF_SIZE.x/2 + 200)
 y(-250)
-z(DESK_HEIGHT - 200)
-shelf();
+z(DESK_HEIGHT + 100)
+sz(-1) {
+    color("navy")
+    shelf();
+    color("black")
+    shelf_legs();
+}
 
 x(SHELF_SIZE.x/2 + 200)
 y(-250)
-z(DESK_HEIGHT + 100)
-sz(-1)
-shelf();
+z(DESK_HEIGHT - 200) {
+    color("navy")
+    shelf();
+    color("black")
+    shelf_legs();
+}
 
 module monitor() {
     z(MONITOR_SIZE.z / 2)
@@ -62,23 +77,21 @@ module monitor() {
 }
 
 module shelf() {
-    color(LIGHT_WOOD)
     cube(SHELF_SIZE, center = true);
-    
+}
+module shelf_legs() {
     for (i = [-1:2:1]) {
         for (j = [-1:2:1]) {
             x(i*0.95*SHELF_SIZE.x/2)
             y(j*0.8*SHELF_SIZE.y/2)
-            color(LIGHT_WOOD)
+            color("black")
             cylinder(h=200, r=10);
         }
     }
 }
 
 module top(size=[1,1,1]) {
-    y(-size.y/2)
-    color(DRAWRS_COLOR)
-    cube(size);
+    y(-size.y/2) cube(size);
 }
 
 

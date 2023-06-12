@@ -248,7 +248,7 @@ module rounded(size, r, half)
 
 module screw(d, h, center=false) {
     z(center ? -h : 0)
-    thread_for_screw(diameter=d - 1, length=h);
+    thread_for_screw(diameter=d, length=h);
 }
 
 module thread(d, h, center=false) {
