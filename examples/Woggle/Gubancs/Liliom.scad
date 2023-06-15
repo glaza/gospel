@@ -1,5 +1,4 @@
 
-
 cserkesz_liliom();
 
 module cserkesz_liliom(h=5) {
@@ -7,13 +6,57 @@ module cserkesz_liliom(h=5) {
     difference() {
         rounded_liliom(h);
         
-        translate([0, 0, h-1])
-        cube([3, 1, 2]);
+        translate([0, -3, h+0.001])
+        korona();
     }
 }
 
+module korona(width) {
+    translate([-0.75, 3.625, 0])
+    rotate([0, 0, 20]) {
+        bot(3, 0.75);
+        
+        translate([0, -0.5, 0])
+        rotate([0, 0, 90])
+        bot(4, 0.75);
+    }
+    
+    rotate_extrude($fn=25, angle=180, convexity=2)
+    polygon([[2, 0], [1.625, -0.375], [1.25, 0]]);
+    
+    bot(4, 0.75);
+}
+
+
+module bot(length, width) {    
+    half_len = length/2;
+    half_wid = width/2;
+    polyhedron(
+        points=[
+            [-half_len, 0, 0],//0
+            [half_wid-half_len, -half_wid, 0],//1
+            [half_wid-half_len, half_wid, 0],//2
+            [half_len-half_wid, -half_wid, 0],//3
+            [half_len, 0, 0],//4
+            [half_len-half_wid, half_wid, 0],//5
+            [half_wid-half_len, 0, -half_wid],//6
+            [half_len-half_wid, 0, -half_wid],//7
+        ],
+        faces=[
+            [0, 2, 5, 4, 3, 1],
+            [0, 1, 6],
+            [0, 6, 2],
+            [4, 5, 7],
+            [4, 7, 3],
+            [6, 1, 3, 7],
+            [6, 7, 5, 2],
+        ],
+        convexity=3
+    );
+}
+
 module rounded_liliom(h=5) {
-    for (i=[0:0.1:h]) {
+    for (i=[0:0.1:h-0.1]) {
         translate([0, 0, i])
         scale([1+sin(180/h*i)/h, 1+sin(180/h*i)/h, 1])
         linear_extrude(0.1)

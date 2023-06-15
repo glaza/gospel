@@ -1,4 +1,5 @@
 use <../../../gospel.scad>
+use <Liliom.scad>
 
 GUBANCS_DIA = 32;
 GUBANCS_HOLE_DIA = 20;
@@ -8,7 +9,7 @@ SCREW_DIA = 12;
 SCREW_LENGTH = GUBANCS_DIA - 6;
 SCREW_POINT = 3.5;
 
-//gubancs();
+gubancs();
 knob();
 
 //s(0.75)
@@ -23,7 +24,12 @@ module knob() {
         rx(90)
         screw(d=SCREW_DIA, h=SCREW_LENGTH);
         
-        y(-SCREW_LENGTH) s(1.5) import("Liliom.example.stl", 3);
+        y(-SCREW_LENGTH)
+        rx(90)
+        sxy(1.5)
+        cserkesz_liliom();
+        
+//        y(-SCREW_LENGTH) s(1.5) import("Liliom.example.stl", 3);
     }
 }
 
