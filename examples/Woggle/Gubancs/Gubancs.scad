@@ -1,4 +1,5 @@
-use <../../../gospel.scad>
+
+use <3rd_party/threads-library-by-cuiso-v1.scad>
 use <Liliom.scad>
 
 GUBANCS_DIA = 32;
@@ -10,14 +11,8 @@ SCREW_LENGTH = GUBANCS_DIA - 6;
 SCREW_POINT = 3.5;
 
 gubancs();
-knob();
+//knob();
 
-//s(0.75)
-//y(20)
-//difference() {
-//    import("screw.stl", 3);
-//    cube(40, center=true);
-//}
 
 module knob() {
     y(GUBANCS_HOLE_DIA/2) {
@@ -28,8 +23,6 @@ module knob() {
         rx(90)
         sxy(1.5)
         cserkesz_liliom();
-        
-//        y(-SCREW_LENGTH) s(1.5) import("Liliom.example.stl", 3);
     }
 }
 
@@ -51,8 +44,8 @@ module gubancs() {
         cylinder(d=SCREW_DIA + 2, h=10, $fn=20);
         
         // Rim
-        z(GUBANCS_BOTTOM_SLICING-GUBANCS_DIA) cube(GUBANCS_DIA, center=true);
-        z(GUBANCS_DIA-GUBANCS_TOP_SLICING) cube(GUBANCS_DIA, center=true);
+        z(GUBANCS_BOTTOM_SLICING - GUBANCS_DIA) cube(GUBANCS_DIA, center=true);
+        z(GUBANCS_DIA - GUBANCS_TOP_SLICING) cube(GUBANCS_DIA, center=true);
     }
 }
 
@@ -80,4 +73,40 @@ module spike(height = 0.5) {
     x(height) ry(90) cylinder(r1=2, r2=1.4, h=height, center=true, $fn=20);
     x(2*height) ry(90) cylinder(r1=1.4, r2=1, h=height, center=true, $fn=20);
     x(2.5*height) sphere(1, $fn=20);
+}
+
+// Library modules
+
+module x(dx) {   
+    translate([dx, 0, 0]) children();
+}
+
+module y(dy) {   
+    translate([0, dy, 0]) children();
+}
+
+module z(dz) {   
+    translate([0, 0, dz]) children();
+}
+
+module rx(angle) {
+    rotate([angle, 0, 0]) children();
+}
+
+module ry(angle) {
+    rotate([0,angle,0]) children();
+}
+
+module rz(angle) {   
+    rotate([0,0,angle]) children();
+}
+
+module screw(d, h, center=false) {
+    z(center ? -h : 0)
+    thread_for_screw(diameter=d, length=h);
+}
+
+module thread(d, h, center=false) {
+    z(center ? -h : 0)
+    thread_for_nut(diameter=d, length=h); 
 }

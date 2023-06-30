@@ -1,5 +1,6 @@
 
 cserkesz_liliom();
+//korona();
 
 module cserkesz_liliom(h=5) {
     
@@ -11,24 +12,24 @@ module cserkesz_liliom(h=5) {
     }
 }
 
-module korona(width) {
+module korona(width=0.75, depth=1) {
     translate([-0.75, 3.625, 0])
     rotate([0, 0, 20]) {
-        bot(3, 0.75);
+        bot(3, width, depth);
         
         translate([0, -0.5, 0])
         rotate([0, 0, 90])
-        bot(4, 0.75);
+        bot(4, width, depth);
     }
     
     rotate_extrude($fn=25, angle=180, convexity=2)
-    polygon([[2, 0], [1.625, -0.375], [1.25, 0]]);
+    polygon([[2, 0], [1.625, -depth], [1.25, 0]]);
     
-    bot(4, 0.75);
+    bot(4, 0.75, depth);
 }
 
 
-module bot(length, width) {    
+module bot(length, width, depth) {    
     half_len = length/2;
     half_wid = width/2;
     polyhedron(
@@ -39,8 +40,8 @@ module bot(length, width) {
             [half_len-half_wid, -half_wid, 0],//3
             [half_len, 0, 0],//4
             [half_len-half_wid, half_wid, 0],//5
-            [half_wid-half_len, 0, -half_wid],//6
-            [half_len-half_wid, 0, -half_wid],//7
+            [half_wid-half_len, 0, -depth],//6
+            [half_len-half_wid, 0, -depth],//7
         ],
         faces=[
             [0, 2, 5, 4, 3, 1],
