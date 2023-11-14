@@ -1,5 +1,5 @@
 
-use <3rd_party/threads-library-by-cuiso-v1.scad>
+use <threads-library-by-cuiso-v1.scad>
 use <Liliom.scad>
 
 GUBANCS_DIA = 32;
@@ -10,21 +10,9 @@ SCREW_DIA = 12;
 SCREW_LENGTH = GUBANCS_DIA - 6;
 SCREW_POINT = 3.5;
 
+
 gubancs();
-//knob();
 
-
-module knob() {
-    y(GUBANCS_HOLE_DIA/2) {
-        rx(90)
-        screw(d=SCREW_DIA, h=SCREW_LENGTH);
-        
-        y(-SCREW_LENGTH)
-        rx(90)
-        sxy(1.5)
-        cserkesz_liliom();
-    }
-}
 
 module gubancs() {
     difference() {
@@ -37,15 +25,20 @@ module gubancs() {
         cylinder(d=GUBANCS_HOLE_DIA, h=100, center=true, $fn=50);
         
         // Screw Thread
-        rx(90) thread(d=SCREW_DIA, h=20);
+        rotate([90, 0, 0]) 
+        thread_for_nut(diameter=SCREW_DIA, length=20);
        
         // Screw landing pad
-        y(GUBANCS_HOLE_DIA/2) rx(90)
+        translate([0, GUBANCS_HOLE_DIA/2, 0])
+        rotate([90, 0, 0])
         cylinder(d=SCREW_DIA + 2, h=10, $fn=20);
         
         // Rim
-        z(GUBANCS_BOTTOM_SLICING - GUBANCS_DIA) cube(GUBANCS_DIA, center=true);
-        z(GUBANCS_DIA - GUBANCS_TOP_SLICING) cube(GUBANCS_DIA, center=true);
+        translate([0, 0, GUBANCS_BOTTOM_SLICING - GUBANCS_DIA])
+        cube(GUBANCS_DIA, center=true);
+        
+        translate([0, 0, GUBANCS_DIA - GUBANCS_TOP_SLICING])
+        cube(GUBANCS_DIA, center=true);
     }
 }
 
@@ -60,53 +53,26 @@ module spikes() {
 module spike_row(phy, phase = 0) {
     for(theta = [-45:67.5:235]) {
         if (theta + phase < 235 && !(abs(phy) < 10 && theta == 90)) {
-            rz(theta + phase)
-            ry(phy)
-            x(GUBANCS_DIA/2)
+            rotate([0, 0, theta + phase])
+            rotate([0, phy, 0])
+            translate([GUBANCS_DIA/2, 0, 0])
             spike();
         }
     }
 }
 
 module spike(height = 0.5) {
-    x(0) ry(90) cylinder(r1=3, r2=2, h=height, center=true, $fn=20);
-    x(height) ry(90) cylinder(r1=2, r2=1.4, h=height, center=true, $fn=20);
-    x(2*height) ry(90) cylinder(r1=1.4, r2=1, h=height, center=true, $fn=20);
-    x(2.5*height) sphere(1, $fn=20);
-}
-
-// Library modules
-
-module x(dx) {   
-    translate([dx, 0, 0]) children();
-}
-
-module y(dy) {   
-    translate([0, dy, 0]) children();
-}
-
-module z(dz) {   
-    translate([0, 0, dz]) children();
-}
-
-module rx(angle) {
-    rotate([angle, 0, 0]) children();
-}
-
-module ry(angle) {
-    rotate([0,angle,0]) children();
-}
-
-module rz(angle) {   
-    rotate([0,0,angle]) children();
-}
-
-module screw(d, h, center=false) {
-    z(center ? -h : 0)
-    thread_for_screw(diameter=d, length=h);
-}
-
-module thread(d, h, center=false) {
-    z(center ? -h : 0)
-    thread_for_nut(diameter=d, length=h); 
+    rotate([0, 90, 0])
+    cylinder(r1=3, r2=2, h=height, center=true, $fn=20);
+    
+    translate([height, 0, 0])
+    rotate([0, 90, 0])
+    cylinder(r1=2, r2=1.4, h=height, center=true, $fn=20);
+    
+    translate([2*height, 0, 0])
+    rotate([0, 90, 0])
+    cylinder(r1=1.4, r2=1, h=height, center=true, $fn=20);
+    
+    translate([2.5*height, 0, 0])
+    sphere(1, $fn=20);
 }
