@@ -1,5 +1,5 @@
 
-NUMBER_OF_STEPS = 36;
+NUMBER_OF_STEPS = 16;
 INNER_DIAMETER = 15;
 INNER_RADIUS = INNER_DIAMETER / 2;
 THICKNESS = 5;
@@ -9,14 +9,21 @@ OUTER_RADIUS = INNER_RADIUS + THICKNESS;
 
 
 
-heights = randomArray(NUMBER_OF_STEPS);
+heights = generateHeightArray(NUMBER_OF_STEPS);
 
 color("red") bottomRing(heights);
 
-color("grey")
-translate([2 * OUTER_RADIUS + THICKNESS, 0, HEIGHT])
-rotate([180, 0, 0])
-topRing(heights);
+//translate([0, 0, HEIGHT + 2])
+//rotate([180, 0, 225])
+//color("grey") bottomRing(heights);
+
+//translate([0, 0, 2])
+//color("grey") topRing(heights);
+
+//color("grey")
+//translate([2 * OUTER_RADIUS + THICKNESS, 0, HEIGHT])
+//rotate([180, 0, 0])
+//topRing(heights);
 
 
 module bottomRing(heights) {
@@ -39,14 +46,12 @@ module topRing(heights) {
     }
 };
 
-function buildAllBottomSegments(heights) =[
-    for (i = [0 : NUMBER_OF_STEPS])
-        buildBottomSegment(heights[i], heights[i+1])
+function buildAllBottomSegments(heights) = [
+    for (i = [0 : NUMBER_OF_STEPS]) buildBottomSegment(heights[i], heights[i+1])
 ];
     
-function buildAllTopSegments(heights) =[
-    for (i = [0 : NUMBER_OF_STEPS])
-    buildTopSegment(heights[i], heights[i+1])
+function buildAllTopSegments(heights) = [
+    for (i = [0 : NUMBER_OF_STEPS]) buildTopSegment(heights[i], heights[i+1])
 ];
     
 cubeFaces = [
@@ -108,6 +113,28 @@ function buildTopSegment(currentHeight, nextHeight) =
     [-innerChamfer, INNER_RADIUS+CHAMFER, HEIGHT], // 11
 ];
 
-function randomArray(n) =
-    let(values = rands(0.25*HEIGHT, 0.75*HEIGHT, n))
-    concat(values, values[0]);
+
+// Generate random values
+function randomArray(steps) = rands(0.25*HEIGHT, 0.75*HEIGHT, steps);
+    
+//function doubleArray(array) = concat(array, array);
+
+function invertArray(array) = [
+    for (i = [len(array) - 1: -1: 0]) HEIGHT - array[i]
+];
+
+// Append the first value after the last value (closing the shape)
+function closeArray(array) = concat(array, array[0]);
+
+function generateHeightArray(steps) = 
+    let(
+        random = randomArray(steps/2),
+        inverted = invertArray(random)
+    )
+    closeArray(concat(random, inverted));
+
+random = randomArray(6);
+echo(random);
+echo(invertArray(random));
+
+    
