@@ -6,16 +6,29 @@ THICKNESS = 5;
 CHAMFER = 1;
 HEIGHT = 30;
 OUTER_RADIUS = INNER_RADIUS + THICKNESS;
+TEXT_SIZE = 4;
+TEXT_DEPTH = 0.5;
+HEIGHTS = [
+    [21.6625, 10.464, 9.51756, 22.407, 12.7313, 11.2683, 8.48914, 9.94045, 20.0596, 21.5109, 18.7317, 17.2687, 7.59297, 20.4824, 19.536, 8.33749, 21.6625],
+    [20.8879, 15.4114, 9.49103, 10.7345, 12.525, 21.0721, 20.1542, 11.8115, 18.1885, 9.84583, 8.92794, 17.475, 19.2655, 20.509, 14.5886, 9.11207, 20.8879],
+    [9.84079, 13.9774, 18.2822, 19.8554, 13.9597, 10.265, 22.1203, 11.0808, 18.9192, 7.87971, 19.735, 16.0403, 10.1446, 11.7178, 16.0226, 20.1592, 9.84079],
+];
 
+//heights = generateHeightArray(NUMBER_OF_STEPS);
+//echo(heights);
+heights = HEIGHTS[0];
 
+color("red")
+bottomRing(heights, "JUBI 24 JUBI 24");
 
-heights = generateHeightArray(NUMBER_OF_STEPS);
-
-color("red") bottomRing(heights);
+color("grey")
+translate([3*OUTER_RADIUS, 0, 0])
+bottomRing(heights, "KARAKÓ VÁRMEGYE", flipped = true);
+//bottomRing(heights, "HONT  VÁRMEGYE", flipped = true);
 
 //translate([0, 0, HEIGHT + 2])
 //rotate([180, 0, 225])
-//color("grey") bottomRing(heights);
+//color("grey") bottomRing(heights, "HONT  VÁRMEGYE", flipped = true);
 
 //translate([0, 0, 2])
 //color("grey") topRing(heights);
@@ -26,13 +39,35 @@ color("red") bottomRing(heights);
 //topRing(heights);
 
 
-module bottomRing(heights) {
+module bottomRing(heights, label = "", flipped = false) {
     bottomSegments = buildAllBottomSegments(heights);
     union() {
         for (i = [0 : NUMBER_OF_STEPS - 1]) {
             rotate([0, 0, -i * 360/NUMBER_OF_STEPS])
             polyhedron(bottomSegments[i], cubeFaces);
         }
+        
+        rotate([0, 0, 180/NUMBER_OF_STEPS])
+        difference() {
+            cylinder(h=THICKNESS, r=OUTER_RADIUS-CHAMFER, $fn=NUMBER_OF_STEPS);
+            cylinder(h=THICKNESS, r=INNER_RADIUS+1.5*CHAMFER, $fn=NUMBER_OF_STEPS);
+        }
+    }    
+
+    letters(label, flipped);
+}
+
+module letters(string, flipped = false) {
+    direction = flipped ? -1 : 1;
+    for (l = [0 : len(string) - 1]) {
+        translate([0, 0, (flipped ? TEXT_SIZE : 0)])
+        rotate([0, 0, l * direction * 360 / NUMBER_OF_STEPS])
+        translate([0, TEXT_DEPTH-OUTER_RADIUS, 2 * CHAMFER])
+        rotate([flipped ? 180 : 0, 0, 0])
+        rotate([90, 0, (flipped ? 180 : 0)])
+        translate([0, 0, 0])
+        linear_extrude(2*TEXT_DEPTH)
+        text(string[l], size=TEXT_SIZE, halign="center", font="Arial Black");
     }
 }
 
@@ -132,9 +167,3 @@ function generateHeightArray(steps) =
         inverted = invertArray(random)
     )
     closeArray(concat(random, inverted));
-
-random = randomArray(6);
-echo(random);
-echo(invertArray(random));
-
-    
