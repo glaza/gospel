@@ -25,11 +25,11 @@ SPACING = 2 * OUTER_RADIUS + GAP;
 // 12 : 7.25h
 // 18 : 11h (5$)
 
-ROWS = 4;
+ROWS = 5;
 COLUMNS = 3;
 //ITERATION = 0;
 //START_HEIGHTS = ROWS * COLUMNS * ITERATION;
-START_HEIGHTS = 29;
+START_HEIGHTS = 76;
 
 for (row = [0 : ROWS - 1]) {
     for (column = [0 : COLUMNS - 1]) {
@@ -46,8 +46,8 @@ for (row = [0 : ROWS - 1]) {
 
             color("grey")
             translate([SPACING, 0, 0])
-//            bottomRing(heights, "HONT  VÁRMEGYE", flipped = true);
-            bottomRing(heights, "KARAKÓ VÁRMEGYE", flipped = true);
+            bottomRing(heights, "HONT  VÁRMEGYE", flipped = true);
+//            bottomRing(heights, "KARAKÓ VÁRMEGYE", flipped = true);
         }
     }
 }
