@@ -1,55 +1,94 @@
 
-AMPLITUDE = 500;
+AMPLITUDE = 10;
 
 WAVEFORM = concat(
-    zero(666),
+    zero(399),
     
     // One
-    ramp(333, 0, AMPLITUDE),
+    ramp(99, 0, AMPLITUDE),
     [-AMPLITUDE],
-    zero(666),
+    zero(299),
     
     // Two
-    curveUp(333, -AMPLITUDE, AMPLITUDE),
-    waveDown(333, AMPLITUDE, -AMPLITUDE),
+    curveUp(149, -AMPLITUDE, AMPLITUDE),
+    waveDown(249, AMPLITUDE, -AMPLITUDE),
     [AMPLITUDE],
-    zero(333),
+    zero(99),
     
     // Three
     [-AMPLITUDE, AMPLITUDE],
-    ramp(222, AMPLITUDE, -AMPLITUDE/2),
-    curveUp(222, -AMPLITUDE/2, AMPLITUDE),
-    curveDown(222, AMPLITUDE, -AMPLITUDE),
-    zero(333),
+    ramp(149, AMPLITUDE, -AMPLITUDE/2),
+    curveUp(124, -AMPLITUDE/2, AMPLITUDE),
+    curveDown(124, AMPLITUDE, -AMPLITUDE),
+    zero(199),
     
     // Four
     [AMPLITUDE],
-    zero(666),
+    zero(199),
     [AMPLITUDE, -AMPLITUDE],
-    zero(333),
+    zero(199),
     
     // Five
     [AMPLITUDE, -AMPLITUDE],
-    flat(222, -AMPLITUDE),
-    curveUp(222, -AMPLITUDE, AMPLITUDE),
-    curveDown(222, AMPLITUDE, -AMPLITUDE),
-    zero(333),
+    flat(149, -AMPLITUDE),
+    curveUp(124, -AMPLITUDE, AMPLITUDE),
+    curveDown(124, AMPLITUDE, -AMPLITUDE),
+    zero(99),
     
     // Six
-    inverse(curveUp(222, -AMPLITUDE, AMPLITUDE)),
+    inverse(curveUp(199, -AMPLITUDE, AMPLITUDE)),
     switch(
-        curveUp(111, -AMPLITUDE, AMPLITUDE),
-        flat(111, -AMPLITUDE)
+        curveUp(99, -AMPLITUDE, AMPLITUDE),
+        flat(99, -AMPLITUDE)
     ),
     switch(
-        curveDown(111, AMPLITUDE, 0),
-        inverse(curveDown(111, AMPLITUDE, 0))
+        curveDown(99, AMPLITUDE, 0),
+        inverse(curveDown(99, AMPLITUDE, 0))
     ),
-    zero(333)
+    zero(99),
+    
+    // Seven
+    [-AMPLITUDE, AMPLITUDE],
+    ramp(199, AMPLITUDE, 0),
+    [-AMPLITUDE/2, AMPLITUDE/2],
+    ramp(199, 0, -AMPLITUDE),
+    zero(99),
+    
+    // Eight
+    switch(
+        curveUp(99, 0, 0.8*AMPLITUDE),
+        inverse(curveUp(99, 0, 0.8*AMPLITUDE))
+    ),
+    switch(
+        curveDown(99, 0.8*AMPLITUDE, 0),
+        inverse(curveDown(99, 0.8*AMPLITUDE, 0))
+    ),
+    switch(
+        curveUp(99, 0, AMPLITUDE),
+        inverse(curveUp(99, 0, AMPLITUDE))
+    ),
+    switch(
+        curveDown(99, AMPLITUDE, 0),
+        inverse(curveDown(99, AMPLITUDE, 0))
+    ),
+    zero(99),
+    
+    // Nine
+    switch(
+        curveUp(99, 0, AMPLITUDE),
+        inverse(curveUp(99, 0, AMPLITUDE))
+    ),
+    switch(
+        flat(99, AMPLITUDE),
+        curveDown(99, -AMPLITUDE, 0)
+    ),
+    inverse(curveDown(199, -AMPLITUDE, AMPLITUDE)),
+    zero(300)
 );
 
 scale([1, 1, 1])
 for (i = [0 : len(WAVEFORM) - 1]) {
+//    if (i > 4990)
 //    echo(i, WAVEFORM[i]);
     
     translate([i, 0, 0])
@@ -78,8 +117,7 @@ function inverse(vec) =
 function waveDown(range, start, end) =
     [for (i = [0 : range]) (start-end)*(1+cos(180*i/range))/2+end];
         
-function switch(vec1, vec2) =
-    [
-        for (i = [0 : 2 : len(vec1) + len(vec2)])
-        ((i/2)%2)*vec1[i/2]+(((i/2)+1)%2*vec2[i/2])
-    ];
+function switch(vec1, vec2) = [
+    for (i = [0 : 2 : len(vec1) + len(vec2) - 2])
+    ((i/2)%2)*vec1[i/2]+(((i/2)+1)%2*vec2[i/2])
+];
